@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bản Đồ Vận Hành Sự Kiện — TrueRace</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <style>
+    :root {
+      --primary: #e53935;
+      --primary-dark: #b71c1c;
+      --secondary: #ff8f00;
+      --bg: #f5f6fa;
+      --card: #ffffff;
+      --text: #1a202c;
+      --text-muted: #718096;
+      --border: #e2e8f0;
+      --sidebar-w: 400px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+    /* ── HEADER ── */
+    #header {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--secondary) 100%);
+      color: white; padding: 10px 16px;
+      display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      z-index: 1000; position: relative;
+    }
+    #header .logo { font-size: 22px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; }
+    #header .subtitle { font-size: 12px; opacity: .8; }
+    #filter-bar { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; justify-content: center; }
+    .filter-btn {
+      background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.3);
+      border-radius: 20px; padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .2s;
+    }
+    .filter-btn:hover, .filter-btn.active { background: white; color: var(--primary); font-weight: 600; }
+    #header-actions { display: flex; gap: 6px; }
+    .action-btn {
+      background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.4);
+      border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; transition: all .2s; white-space: nowrap;
+    }
+    .action-btn:hover { background: rgba(255,255,255,.3); }
+
+    /* ── LAYOUT ── */
+    #content { display: flex; height: calc(100vh - 54px); }
+    #map { flex: 1; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w); background: white;
+      display: none; flex-direction: column;
+      box-shadow: -4px 0 20px rgba(0,0,0,.12);
+      overflow: hidden; z-index: 500;
+    }
+    #sidebar.open { display: flex; }
+    #sidebar-header {
+      background: var(--primary); color: white; padding: 14px 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    #sidebar-province-name { font-size: 18px; font-weight: 700; flex: 1; }
+    #sidebar-count { background: rgba(255,255,255,.25); border-radius: 12px; padding: 2px 10px; font-size: 13px; }
+    .close-btn {
+      background: rgba(255,255,255,.2); border: none; color: white;
+      width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px;
+    }
+    #sidebar-actions { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
+    .add-btn {
+      background: var(--primary); color: white; border: none;
+      border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center;
+    }
+    .add-btn:hover { background: var(--primary-dark); }
+
+    #sidebar-filter { padding: 8px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; }
+    .sf-btn {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
+      padding: 3px 10px; font-size: 11px; cursor: pointer; transition: all .15s;
+    }
+    .sf-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    #sidebar-content { flex: 1; overflow-y: auto; padding: 12px 16px; }
+    #sidebar-content:empty::after { content: 'Chưa có địa điểm nào. Nhấn "+ Thêm địa điểm" để bắt đầu.'; display: block; text-align: center; color: var(--text-muted); padding: 40px 0; font-size: 14px; }
+
+    .location-card {
+      border: 1px solid var(--border); border-radius: 12px; padding: 14px;
+      margin-bottom: 12px; background: white; transition: box-shadow .2s;
+    }
+    .location-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+    .card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+    .type-badge {
+      border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .type-hotel { background: #ebf8ff; color: #2b6cb0; }
+    .type-nhangi { background: #f0fff4; color: #276749; }
+    .type-motorbike { background: #fffaf0; color: #c05621; }
+    .type-car { background: #faf5ff; color: #6b46c1; }
+    .type-other { background: #f7fafc; color: #4a5568; }
+    .card-name { font-size: 15px; font-weight: 700; flex: 1; line-height: 1.3; }
+    .card-actions { display: flex; gap: 4px; }
+    .icon-btn {
+      background: none; border: 1px solid var(--border); border-radius: 6px;
+      width: 28px; height: 28px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    .icon-btn:hover { background: var(--bg); }
+    .icon-btn.delete:hover { background: #fff5f5; border-color: #feb2b2; }
+    .card-info { display: flex; flex-direction: column; gap: 6px; }
+    .info-row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
+    .info-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+    .info-text { color: var(--text); line-height: 1.4; flex: 1; }
+    .info-text a { color: var(--primary); text-decoration: none; font-weight: 500; }
+    .info-text a:hover { text-decoration: underline; }
+    .price-tag { color: var(--secondary); font-weight: 700; font-size: 14px; }
+    .notes-text { color: var(--text-muted); font-style: italic; }
+
+    .empty-province { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty-province .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-province p { font-size: 14px; }
+
+    /* ── CUSTOM MAP MARKER ── */
+    .prov-marker {
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: white;
+      border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer;
+      transition: transform .15s;
+    }
+    .prov-marker:hover { transform: scale(1.2); }
+    .prov-marker.has-data { background: var(--primary); }
+    .prov-marker.no-data { background: #a0aec0; }
+    .prov-marker.island { background: linear-gradient(135deg, #e53935, #ff8f00); border-color: #ffd54f; }
+
+    /* ── MODAL ── */
+    #modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.5);
+      z-index: 9000; display: none; align-items: center; justify-content: center;
+    }
+    #modal-overlay.open { display: flex; }
+    #modal-box {
+      background: white; border-radius: 16px; width: 480px; max-width: 95vw;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    #modal-header {
+      background: var(--primary); color: white; padding: 16px 20px;
+      border-radius: 16px 16px 0 0; display: flex; align-items: center; justify-content: space-between;
+    }
+    #modal-title { font-size: 16px; font-weight: 700; }
+    #modal-body { padding: 20px; }
+    .form-group { margin-bottom: 14px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+    input, select, textarea {
+      width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+      font-size: 14px; font-family: inherit; color: var(--text); transition: border-color .2s;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(229,57,53,.1); }
+    textarea { min-height: 80px; resize: vertical; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-save { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; flex: 1; }
+    .btn-save:hover { background: var(--primary-dark); }
+    .btn-cancel { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; }
+    .btn-cancel:hover { background: var(--border); }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: #1a202c; color: white; border-radius: 10px; padding: 10px 20px;
+      font-size: 14px; z-index: 9999; transition: transform .3s ease; box-shadow: 0 4px 20px rgba(0,0,0,.3);
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* ── STATS BAR ── */
+    #stats-bar {
+      position: absolute; bottom: 20px; left: 20px; z-index: 999;
+      background: white; border-radius: 12px; padding: 10px 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      display: flex; gap: 16px; align-items: center; font-size: 13px;
+    }
+    .stat-item { display: flex; flex-direction: column; align-items: center; }
+    .stat-num { font-size: 20px; font-weight: 800; color: var(--primary); }
+    .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
+    .stat-divider { width: 1px; height: 32px; background: var(--border); }
+
+    /* Leaflet popup override */
+    .leaflet-popup-content-wrapper { border-radius: 10px !important; }
+
+    /* Scrollbar */
+    #sidebar-content::-webkit-scrollbar { width: 4px; }
+    #sidebar-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    @media (max-width: 640px) {
+      :root { --sidebar-w: 100vw; }
+      #header { flex-wrap: wrap; }
+      #filter-bar { order: 3; width: 100%; }
+      #stats-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div>
+    <div class="logo">🏃 TRUERACE</div>
+    <div class="subtitle">Bản Đồ Vận Hành Sự Kiện</div>
+  </div>
+  <div id="filter-bar">
+    <button class="filter-btn active" data-type="all" onclick="setGlobalFilter('all')">📍 Tất cả</button>
+    <button class="filter-btn" data-type="hotel" onclick="setGlobalFilter('hotel')">🏨 Khách sạn</button>
+    <button class="filter-btn" data-type="nhangi" onclick="setGlobalFilter('nhangi')">🏠 Nhà nghỉ</button>
+    <button class="filter-btn" data-type="motorbike" onclick="setGlobalFilter('motorbike')">🏍 Xe máy</button>
+    <button class="filter-btn" data-type="car" onclick="setGlobalFilter('car')">🚗 Xe ô tô</button>
+  </div>
+  <div id="header-actions">
+    <button class="action-btn" onclick="exportData()">📤 Xuất</button>
+    <button class="action-btn" onclick="triggerImport()">📥 Nhập</button>
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)" />
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div id="content">
+  <div id="map"></div>
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <div>
+        <div id="sidebar-province-name">Chọn tỉnh/thành</div>
+        <div id="sidebar-count"></div>
+      </div>
+      <button class="close-btn" onclick="closeSidebar()">✕</button>
+    </div>
+    <div id="sidebar-actions">
+      <button class="add-btn" onclick="openAddModal()">＋ Thêm địa điểm</button>
+    </div>
+    <div id="sidebar-filter">
+      <button class="sf-btn active" data-sf="all" onclick="setSidebarFilter('all')">Tất cả</button>
+      <button class="sf-btn" data-sf="hotel" onclick="setSidebarFilter('hotel')">🏨 KS</button>
+      <button class="sf-btn" data-sf="nhangi" onclick="setSidebarFilter('nhangi')">🏠 NQ</button>
+      <button class="sf-btn" data-sf="motorbike" onclick="setSidebarFilter('motorbike')">🏍 Xe máy</button>
+      <button class="sf-btn" data-sf="car" onclick="setSidebarFilter('car')">🚗 Xe ô tô</button>
+    </div>
+    <div id="sidebar-content"></div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div id="stats-bar">
+  <div class="stat-item">
+    <div class="stat-num" id="stat-provinces">0</div>
+    <div class="stat-label">Tỉnh/TP</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-num" id="stat-total">0</div>
+    <div class="stat-label">Địa điểm</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-num" id="stat-hotels">0</div>
+    <div class="stat-label">Khách sạn</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <div class="stat-num" id="stat-bikes">0</div>
+    <div class="stat-label">Xe máy</div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div id="modal-box">
+    <div id="modal-header">
+      <span id="modal-title">Thêm địa điểm</span>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modal-body">
+      <div class="form-group">
+        <label>Tên địa điểm *</label>
+        <input type="text" id="f-name" placeholder="VD: Khách sạn Mường Thanh" required />
+      </div>
+      <div class="form-group">
+        <label>Loại *</label>
+        <select id="f-type">
+          <option value="hotel">🏨 Khách sạn</option>
+          <option value="nhangi">🏠 Nhà nghỉ / Homestay</option>
+          <option value="motorbike">🏍 Cho thuê xe máy</option>
+          <option value="car">🚗 Cho thuê xe ô tô</option>
+          <option value="other">📍 Khác</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Địa chỉ</label>
+        <input type="text" id="f-address" placeholder="Số nhà, đường, phường/xã, quận/huyện" />
+      </div>
+      <div class="form-group">
+        <label>Google Maps Link</label>
+        <input type="url" id="f-maps" placeholder="https://maps.app.goo.gl/..." />
+      </div>
+      <div class="form-group">
+        <label>Số điện thoại</label>
+        <input type="tel" id="f-phone" placeholder="VD: 0901 234 567" />
+      </div>
+      <div class="form-group">
+        <label>Giá tham khảo</label>
+        <input type="text" id="f-price" placeholder="VD: 350,000 VNĐ/đêm hoặc 150,000 VNĐ/ngày" />
+      </div>
+      <div class="form-group">
+        <label>Ghi chú</label>
+        <textarea id="f-notes" placeholder="Lưu ý đặc biệt, ưu / nhược điểm, kinh nghiệm..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Hủy</button>
+        <button class="btn-save" onclick="saveLocation()">💾 Lưu địa điểm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+// ════════════════════════════════════════
+//  DATA: 63 tỉnh/thành + Hoàng Sa + Trường Sa
+// ════════════════════════════════════════
+const PROVINCES = [
+  // ── Miền Bắc ──
+  { name:"Hà Nội",          lat:21.0285, lng:105.8542, region:"north" },
+  { name:"Hải Phòng",       lat:20.8449, lng:106.6881, region:"north" },
+  { name:"Quảng Ninh",      lat:21.0064, lng:107.2925, region:"north" },
+  { name:"Bắc Giang",       lat:21.2819, lng:106.2032, region:"north" },
+  { name:"Bắc Kạn",         lat:22.1474, lng:105.8343, region:"north" },
+  { name:"Bắc Ninh",        lat:21.1214, lng:106.0765, region:"north" },
+  { name:"Cao Bằng",        lat:22.6667, lng:106.2500, region:"north" },
+  { name:"Điện Biên",       lat:21.3860, lng:103.0160, region:"north" },
+  { name:"Hà Giang",        lat:22.8231, lng:104.9840, region:"north" },
+  { name:"Hà Nam",          lat:20.5453, lng:105.9222, region:"north" },
+  { name:"Hải Dương",       lat:20.9373, lng:106.3146, region:"north" },
+  { name:"Hòa Bình",        lat:20.8133, lng:105.3383, region:"north" },
+  { name:"Hưng Yên",        lat:20.6461, lng:106.0510, region:"north" },
+  { name:"Lai Châu",        lat:22.3856, lng:103.4596, region:"north" },
+  { name:"Lạng Sơn",        lat:21.8537, lng:106.7615, region:"north" },
+  { name:"Lào Cai",         lat:22.3364, lng:103.9753, region:"north" },
+  { name:"Nam Định",        lat:20.4338, lng:106.1623, region:"north" },
+  { name:"Ninh Bình",       lat:20.2500, lng:105.9744, region:"north" },
+  { name:"Phú Thọ",         lat:21.3993, lng:105.2317, region:"north" },
+  { name:"Sơn La",          lat:21.3256, lng:103.9188, region:"north" },
+  { name:"Thái Bình",       lat:20.4463, lng:106.3366, region:"north" },
+  { name:"Thái Nguyên",     lat:21.5936, lng:105.8481, region:"north" },
+  { name:"Tuyên Quang",     lat:21.8289, lng:105.2133, region:"north" },
+  { name:"Vĩnh Phúc",       lat:21.3609, lng:105.5474, region:"north" },
+  { name:"Yên Bái",         lat:21.7051, lng:104.8948, region:"north" },
+  // ── Miền Trung ──
+  { name:"Bình Định",       lat:14.1667, lng:108.9000, region:"central" },
+  { name:"Bình Thuận",      lat:11.0904, lng:108.0720, region:"central" },
+  { name:"Đà Nẵng",         lat:16.0544, lng:108.2022, region:"central" },
+  { name:"Đắk Lắk",         lat:12.6801, lng:108.0503, region:"central" },
+  { name:"Đắk Nông",        lat:11.9904, lng:107.6904, region:"central" },
+  { name:"Gia Lai",          lat:13.9833, lng:108.0000, region:"central" },
+  { name:"Hà Tĩnh",         lat:18.3560, lng:105.8877, region:"central" },
+  { name:"Khánh Hòa",       lat:12.2388, lng:109.1967, region:"central" },
+  { name:"Kon Tum",          lat:14.3497, lng:107.9988, region:"central" },
+  { name:"Lâm Đồng",        lat:11.9465, lng:108.4419, region:"central" },
+  { name:"Nghệ An",          lat:19.2342, lng:104.9200, region:"central" },
+  { name:"Ninh Thuận",       lat:11.5645, lng:108.9883, region:"central" },
+  { name:"Phú Yên",          lat:13.0882, lng:109.0928, region:"central" },
+  { name:"Quảng Bình",       lat:17.4833, lng:106.6224, region:"central" },
+  { name:"Quảng Nam",        lat:15.5393, lng:108.0191, region:"central" },
+  { name:"Quảng Ngãi",       lat:15.1214, lng:108.8044, region:"central" },
+  { name:"Quảng Trị",        lat:16.7500, lng:107.2000, region:"central" },
+  { name:"Thanh Hóa",        lat:19.8079, lng:105.7764, region:"central" },
+  { name:"Thừa Thiên Huế",   lat:16.4637, lng:107.5909, region:"central" },
+  // ── Miền Nam ──
+  { name:"An Giang",         lat:10.3864, lng:105.4350, region:"south" },
+  { name:"Bà Rịa - Vũng Tàu",lat:10.3460, lng:107.0843, region:"south" },
+  { name:"Bạc Liêu",         lat:9.2941,  lng:105.7215, region:"south" },
+  { name:"Bến Tre",           lat:10.2433, lng:106.3750, region:"south" },
+  { name:"Bình Dương",        lat:11.1686, lng:106.6545, region:"south" },
+  { name:"Bình Phước",        lat:11.7511, lng:106.7234, region:"south" },
+  { name:"Cà Mau",            lat:9.1527,  lng:105.1961, region:"south" },
+  { name:"Cần Thơ",           lat:10.0452, lng:105.7469, region:"south" },
+  { name:"Đồng Nai",          lat:10.9453, lng:107.1416, region:"south" },
+  { name:"Đồng Tháp",         lat:10.4900, lng:105.6880, region:"south" },
+  { name:"Hậu Giang",         lat:9.7572,  lng:105.6413, region:"south" },
+  { name:"Kiên Giang",        lat:10.0125, lng:105.0809, region:"south" },
+  { name:"Long An",           lat:10.6956, lng:106.2431, region:"south" },
+  { name:"Sóc Trăng",         lat:9.6003,  lng:105.9739, region:"south" },
+  { name:"Tây Ninh",          lat:11.3103, lng:106.0985, region:"south" },
+  { name:"Tiền Giang",        lat:10.3600, lng:106.3600, region:"south" },
+  { name:"TP. Hồ Chí Minh",   lat:10.8231, lng:106.6297, region:"south" },
+  { name:"Trà Vinh",          lat:9.9513,  lng:106.3423, region:"south" },
+  { name:"Vĩnh Long",         lat:10.2538, lng:105.9722, region:"south" },
+  // ── Quần đảo ──
+  { name:"Hoàng Sa",   lat:16.5000, lng:111.5000, region:"island", isIsland:true },
+  { name:"Trường Sa",  lat:9.5000,  lng:114.2000, region:"island", isIsland:true },
+];
+
+// ════════════════════════════════════════
+//  DỮ LIỆU MẪU (Sample Data)
+// ════════════════════════════════════════
+const SAMPLE_DATA = {
+  "Hà Nội": [
+    { id:"hn1", name:"Khách sạn Mường Thanh Grand", type:"hotel",
+      address:"34 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
+      mapsLink:"https://maps.app.goo.gl/example", phone:"024 3974 9999",
+      price:"800,000 – 1,500,000 VNĐ/đêm", notes:"Gần sân Cột Cờ, phòng rộng, có hội trường tổ chức họp" },
+    { id:"hn2", name:"Thuê xe máy Hoàng Long", type:"motorbike",
+      address:"15 Phố Huế, Hai Bà Trưng, Hà Nội",
+      mapsLink:"https://maps.app.goo.gl/example2", phone:"0912 345 678",
+      price:"150,000 – 200,000 VNĐ/ngày", notes:"Xe mới, có thể giao xe tận nơi trong nội thành" }
+  ],
+  "Đà Nẵng": [
+    { id:"dn1", name:"Brilliant Hotel", type:"hotel",
+      address:"162 Bạch Đằng, Hải Châu, Đà Nẵng",
+      mapsLink:"https://maps.app.goo.gl/example3", phone:"0236 3222 999",
+      price:"900,000 – 1,800,000 VNĐ/đêm", notes:"View sông Hàn đẹp, gần trung tâm giải" },
+    { id:"dn2", name:"Nhà nghỉ Bình An", type:"nhangi",
+      address:"45 Nguyễn Văn Linh, Đà Nẵng",
+      mapsLink:"https://maps.app.goo.gl/example4", phone:"0236 3567 890",
+      price:"250,000 – 400,000 VNĐ/đêm", notes:"Phù hợp cho BTC budget thấp, sạch sẽ" },
+    { id:"dn3", name:"Xe máy Thanh Bình", type:"motorbike",
+      address:"20 Hùng Vương, Đà Nẵng",
+      mapsLink:"https://maps.app.goo.gl/example5", phone:"0905 678 901",
+      price:"100,000 – 150,000 VNĐ/ngày", notes:"Có xe Wave, Exciter, Jupiter. Giảm giá thuê dài ngày" }
+  ],
+  "TP. Hồ Chí Minh": [
+    { id:"hcm1", name:"Khách sạn Liberty Central Saigon", type:"hotel",
+      address:"59-61 Pasteur, Quận 1, TP.HCM",
+      mapsLink:"https://maps.app.goo.gl/example6", phone:"028 3829 0000",
+      price:"1,200,000 – 2,500,000 VNĐ/đêm", notes:"Gần hồ Con Rùa, tiện di chuyển" },
+    { id:"hcm2", name:"Thuê xe ô tô 7 chỗ Minh Phúc", type:"car",
+      address:"180 Đinh Tiên Hoàng, Bình Thạnh, TP.HCM",
+      mapsLink:"https://maps.app.goo.gl/example7", phone:"0909 123 456",
+      price:"1,200,000 – 1,800,000 VNĐ/ngày", notes:"Có lái xe, phục vụ 24/7, cần đặt trước 1 ngày" }
+  ],
+  "Khánh Hòa": [
+    { id:"kh1", name:"Sunrise Nha Trang Beach Hotel", type:"hotel",
+      address:"12-14 Trần Phú, Nha Trang",
+      mapsLink:"https://maps.app.goo.gl/example8", phone:"0258 3820 999",
+      price:"1,500,000 – 3,000,000 VNĐ/đêm", notes:"Thẳng bãi biển, gần khu vực finish line Ironman" }
+  ],
+  "Lâm Đồng": [
+    { id:"ld1", name:"Dalat Palace Heritage Hotel", type:"hotel",
+      address:"12 Trần Phú, Đà Lạt",
+      mapsLink:"https://maps.app.goo.gl/example9", phone:"0263 3825 444",
+      price:"2,000,000 – 4,000,000 VNĐ/đêm", notes:"Khách sạn lịch sử, gần trung tâm thành phố Đà Lạt" }
+  ]
+};
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+const STORAGE_KEY = 'truerace-map-v2';
+let data = {};
+let globalFilter = 'all';
+let sidebarFilter = 'all';
+let currentProvince = null;
+let editingId = null;
+let markers = {};
+
+// Load data from localStorage
+function loadData() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    try { data = JSON.parse(raw); } catch(e) { data = {}; }
+  }
+  // First time: load sample data
+  if (Object.keys(data).length === 0) {
+    data = JSON.parse(JSON.stringify(SAMPLE_DATA));
+    saveData();
+  }
+}
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// ════════════════════════════════════════
+//  MAP INITIALIZATION
+// ════════════════════════════════════════
+loadData();
+const map = L.map('map', {
+  center: [15.5, 107.5],
+  zoom: 6,
+  zoomControl: true
+});
+
+// Tile nhẹ, màu xám nhạt — các nước lân cận không nổi bật
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://carto.com/">CARTO</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+  maxZoom: 19,
+  subdomains: 'abcd'
+}).addTo(map);
+
+// ── MASK: làm mờ các nước ngoài lãnh thổ Việt Nam ──
+// Đường biên giới Việt Nam (đơn giản hóa)
+const VN_BORDER = [
+  [22.5,102.2],[22.8,103.3],[23.0,104.0],[23.4,105.0],[23.3,105.9],
+  [22.9,106.2],[22.5,106.7],[21.5,108.0],[21.1,108.0],[20.9,107.4],
+  [20.7,107.1],[20.3,106.9],[20.2,106.6],[19.8,106.0],[19.0,105.8],
+  [18.5,106.1],[18.0,106.6],[17.5,107.1],[17.2,107.5],[16.8,107.5],
+  [16.5,107.7],[16.1,108.2],[15.7,108.5],[15.3,108.9],[14.5,109.1],
+  [14.0,109.3],[13.5,109.3],[12.8,109.4],[12.3,109.3],[12.0,109.2],
+  [11.6,109.0],[11.3,109.0],[11.0,108.7],[10.8,108.2],[10.6,107.8],
+  [10.4,107.3],[10.2,107.1],[10.1,106.9],[9.8,106.6],[9.5,106.3],
+  [9.1,105.9],[8.8,105.3],[8.7,105.0],[8.6,104.8],[8.9,104.7],
+  [9.3,104.6],[9.8,104.5],[10.2,104.4],[10.5,104.4],[11.0,104.6],
+  [11.5,104.9],[11.7,105.1],[12.1,107.0],[12.4,107.4],[12.8,107.5],
+  [13.4,107.8],[14.0,107.8],[14.4,107.8],[15.0,107.7],[15.5,107.8],
+  [16.0,106.9],[16.5,106.5],[17.0,106.2],[17.5,105.9],[18.0,105.6],
+  [18.5,105.3],[19.0,104.9],[19.5,104.5],[20.0,103.8],[20.5,103.4],
+  [21.0,102.8],[21.5,102.4],[22.0,102.1],[22.5,102.2]
+];
+
+// Hộp bao toàn thế giới có "lỗ hổng" là Việt Nam → vùng còn lại bị phủ mờ
+const worldBox = [[-89,-179],[-89,179],[89,179],[89,-179]];
+L.polygon([worldBox, VN_BORDER], {
+  color: 'transparent',
+  fillColor: '#e8ecf0',
+  fillOpacity: 0.60,
+  interactive: false
+}).addTo(map);
+
+// Viền biên giới Việt Nam nổi bật
+L.polygon(VN_BORDER, {
+  color: '#e53935',
+  weight: 1.5,
+  opacity: 0.6,
+  fill: false,
+  interactive: false
+}).addTo(map);
+
+// ════════════════════════════════════════
+//  MARKER HELPERS
+// ════════════════════════════════════════
+function countForProvince(name) {
+  const locs = data[name] || [];
+  if (globalFilter === 'all') return locs.length;
+  return locs.filter(l => l.type === globalFilter).length;
+}
+
+function makeIcon(name) {
+  const count = countForProvince(name);
+  const prov = PROVINCES.find(p => p.name === name);
+  const isIsland = prov && prov.isIsland;
+  const hasData = count > 0;
+  const size = isIsland ? 28 : (hasData ? 30 : 14);
+  const cls = isIsland ? 'prov-marker island' : (hasData ? 'prov-marker has-data' : 'prov-marker no-data');
+  return L.divIcon({
+    html: `<div class="${cls}" style="width:${size}px;height:${size}px;font-size:${size < 20 ? '0' : '12'}px">${hasData ? count : ''}</div>`,
+    className: '',
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -size/2]
+  });
+}
+
+// ════════════════════════════════════════
+//  BUILD MARKERS
+// ════════════════════════════════════════
+function buildMarkers() {
+  PROVINCES.forEach(prov => {
+    const marker = L.marker([prov.lat, prov.lng], { icon: makeIcon(prov.name) })
+      .addTo(map)
+      .on('click', () => openSidebar(prov.name));
+
+    const label = prov.isIsland
+      ? `🏝️ ${prov.name} (Việt Nam)`
+      : prov.name;
+    marker.bindTooltip(label, { direction: 'top', offset: [0,-8], opacity: 0.95 });
+    markers[prov.name] = marker;
+  });
+}
+
+function refreshMarkers() {
+  PROVINCES.forEach(prov => {
+    if (markers[prov.name]) {
+      markers[prov.name].setIcon(makeIcon(prov.name));
+    }
+  });
+  updateStats();
+}
+
+// ════════════════════════════════════════
+//  SIDEBAR
+// ════════════════════════════════════════
+function openSidebar(provinceName) {
+  currentProvince = provinceName;
+  sidebarFilter = 'all';
+  document.querySelectorAll('.sf-btn').forEach(b => b.classList.toggle('active', b.dataset.sf === 'all'));
+  document.getElementById('sidebar-province-name').textContent = provinceName;
+  const sid = document.getElementById('sidebar');
+  sid.classList.add('open');
+  renderSidebarContent();
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  currentProvince = null;
+}
+
+function renderSidebarContent() {
+  if (!currentProvince) return;
+  let locs = data[currentProvince] || [];
+  if (sidebarFilter !== 'all') locs = locs.filter(l => l.type === sidebarFilter);
+
+  const countEl = document.getElementById('sidebar-count');
+  const total = (data[currentProvince] || []).length;
+  countEl.textContent = total > 0 ? `${total} địa điểm` : 'Chưa có dữ liệu';
+
+  const el = document.getElementById('sidebar-content');
+  if (locs.length === 0) {
+    el.innerHTML = `<div class="empty-province"><div class="empty-icon">📍</div><p>Chưa có địa điểm${sidebarFilter !== 'all' ? ' thuộc loại này' : ''}.<br/>Nhấn <b>+ Thêm địa điểm</b> để bắt đầu.</p></div>`;
+    return;
+  }
+  el.innerHTML = locs.map(loc => renderCard(loc)).join('');
+}
+
+const TYPE_META = {
+  hotel:     { label:'Khách sạn',    cls:'type-hotel',     icon:'🏨' },
+  nhangi:    { label:'Nhà nghỉ',     cls:'type-nhangi',    icon:'🏠' },
+  motorbike: { label:'Xe máy',       cls:'type-motorbike', icon:'🏍' },
+  car:       { label:'Xe ô tô',      cls:'type-car',       icon:'🚗' },
+  other:     { label:'Khác',         cls:'type-other',     icon:'📍' },
+};
+
+function renderCard(loc) {
+  const meta = TYPE_META[loc.type] || TYPE_META.other;
+  return `
+  <div class="location-card" id="card-${loc.id}">
+    <div class="card-header">
+      <span class="type-badge ${meta.cls}">${meta.icon} ${meta.label}</span>
+      <span class="card-name">${escHtml(loc.name)}</span>
+      <div class="card-actions">
+        <button class="icon-btn" title="Chỉnh sửa" onclick="openEditModal('${loc.id}')">✏️</button>
+        <button class="icon-btn delete" title="Xóa" onclick="deleteLocation('${loc.id}')">🗑️</button>
+      </div>
+    </div>
+    <div class="card-info">
+      ${loc.address ? `<div class="info-row"><span class="info-icon">📍</span><span class="info-text">${escHtml(loc.address)}${loc.mapsLink ? ` &nbsp;<a href="${escHtml(loc.mapsLink)}" target="_blank">→ Maps</a>` : ''}</span></div>` : ''}
+      ${loc.phone ? `<div class="info-row"><span class="info-icon">📞</span><span class="info-text"><a href="tel:${escHtml(loc.phone)}">${escHtml(loc.phone)}</a></span></div>` : ''}
+      ${loc.price ? `<div class="info-row"><span class="info-icon">💰</span><span class="info-text price-tag">${escHtml(loc.price)}</span></div>` : ''}
+      ${loc.notes ? `<div class="info-row"><span class="info-icon">📝</span><span class="info-text notes-text">${escHtml(loc.notes)}</span></div>` : ''}
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════
+//  FILTERS
+// ════════════════════════════════════════
+function setGlobalFilter(type) {
+  globalFilter = type;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
+  refreshMarkers();
+  if (currentProvince) renderSidebarContent();
+}
+
+function setSidebarFilter(type) {
+  sidebarFilter = type;
+  document.querySelectorAll('.sf-btn').forEach(b => b.classList.toggle('active', b.dataset.sf === type));
+  renderSidebarContent();
+}
+
+// ════════════════════════════════════════
+//  ADD / EDIT / DELETE
+// ════════════════════════════════════════
+function openAddModal() {
+  editingId = null;
+  document.getElementById('modal-title').textContent = `Thêm địa điểm — ${currentProvince}`;
+  clearForm();
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openEditModal(id) {
+  const locs = data[currentProvince] || [];
+  const loc = locs.find(l => l.id === id);
+  if (!loc) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'Chỉnh sửa địa điểm';
+  document.getElementById('f-name').value = loc.name || '';
+  document.getElementById('f-type').value = loc.type || 'hotel';
+  document.getElementById('f-address').value = loc.address || '';
+  document.getElementById('f-maps').value = loc.mapsLink || '';
+  document.getElementById('f-phone').value = loc.phone || '';
+  document.getElementById('f-price').value = loc.price || '';
+  document.getElementById('f-notes').value = loc.notes || '';
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function clearForm() {
+  ['f-name','f-type','f-address','f-maps','f-phone','f-price','f-notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el.tagName === 'SELECT') el.value = 'hotel';
+    else el.value = '';
+  });
+}
+
+function saveLocation() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showToast('⚠️ Vui lòng nhập tên địa điểm!'); return; }
+  if (!currentProvince) { showToast('⚠️ Chưa chọn tỉnh/thành!'); return; }
+
+  const loc = {
+    id: editingId || ('loc-' + Date.now()),
+    name,
+    type:     document.getElementById('f-type').value,
+    address:  document.getElementById('f-address').value.trim(),
+    mapsLink: document.getElementById('f-maps').value.trim(),
+    phone:    document.getElementById('f-phone').value.trim(),
+    price:    document.getElementById('f-price').value.trim(),
+    notes:    document.getElementById('f-notes').value.trim(),
+  };
+
+  if (!data[currentProvince]) data[currentProvince] = [];
+  if (editingId) {
+    const idx = data[currentProvince].findIndex(l => l.id === editingId);
+    if (idx >= 0) data[currentProvince][idx] = loc;
+  } else {
+    data[currentProvince].push(loc);
+  }
+
+  saveData();
+  closeModal();
+  renderSidebarContent();
+  refreshMarkers();
+  showToast(editingId ? '✅ Đã cập nhật địa điểm!' : '✅ Đã thêm địa điểm mới!');
+}
+
+function deleteLocation(id) {
+  if (!confirm('Xóa địa điểm này?')) return;
+  if (!data[currentProvince]) return;
+  data[currentProvince] = data[currentProvince].filter(l => l.id !== id);
+  if (data[currentProvince].length === 0) delete data[currentProvince];
+  saveData();
+  renderSidebarContent();
+  refreshMarkers();
+  showToast('🗑️ Đã xóa địa điểm!');
+}
+
+// ════════════════════════════════════════
+//  MODAL CONTROL
+// ════════════════════════════════════════
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// ════════════════════════════════════════
+//  EXPORT / IMPORT
+// ════════════════════════════════════════
+function exportData() {
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `truerace-map-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 Đã xuất dữ liệu thành công!');
+}
+function triggerImport() {
+  document.getElementById('import-input').click();
+}
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (typeof imported !== 'object') throw new Error();
+      if (!confirm(`Nhập dữ liệu từ file "${file.name}"?\n⚠️ Dữ liệu hiện tại sẽ bị THAY THẾ hoàn toàn.`)) return;
+      data = imported;
+      saveData();
+      refreshMarkers();
+      if (currentProvince) renderSidebarContent();
+      showToast('📥 Nhập dữ liệu thành công!');
+    } catch { showToast('❌ File không hợp lệ!'); }
+    e.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+// ════════════════════════════════════════
+//  STATS
+// ════════════════════════════════════════
+function updateStats() {
+  const allLocs = Object.values(data).flat();
+  const provincesWithData = Object.keys(data).filter(k => data[k] && data[k].length > 0);
+  document.getElementById('stat-provinces').textContent = provincesWithData.length;
+  document.getElementById('stat-total').textContent = allLocs.length;
+  document.getElementById('stat-hotels').textContent = allLocs.filter(l => l.type === 'hotel' || l.type === 'nhangi').length;
+  document.getElementById('stat-bikes').textContent = allLocs.filter(l => l.type === 'motorbike').length;
+}
+
+// ════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ═══════════════════
