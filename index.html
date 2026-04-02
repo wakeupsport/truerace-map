@@ -3,250 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bản Đồ Vận Hành Sự Kiện — TrueRace</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <style>
-    :root {
-      --primary: #e53935;
-      --primary-dark: #b71c1c;
-      --secondary: #ff8f00;
-      --bg: #f5f6fa;
-      --card: #ffffff;
-      --text: #1a202c;
-      --text-muted: #718096;
-      --border: #e2e8f0;
-      --sidebar-w: 400px;
-    }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-
-    /* ── HEADER ── */
-    #header {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--secondary) 100%);
-      color: white; padding: 10px 16px;
-      display: flex; align-items: center; gap: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.25);
-      z-index: 1000; position: relative;
-    }
-    #header .logo { font-size: 22px; font-weight: 800; letter-spacing: 1px; white-space: nowrap; }
-    #header .subtitle { font-size: 12px; opacity: .8; }
-    #filter-bar { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; justify-content: center; }
-    .filter-btn {
-      background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.3);
-      border-radius: 20px; padding: 4px 12px; font-size: 12px; cursor: pointer; transition: all .2s;
-    }
-    .filter-btn:hover, .filter-btn.active { background: white; color: var(--primary); font-weight: 600; }
-    #header-actions { display: flex; gap: 6px; }
-    .action-btn {
-      background: rgba(255,255,255,.15); color: white; border: 1px solid rgba(255,255,255,.4);
-      border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; transition: all .2s; white-space: nowrap;
-    }
-    .action-btn:hover { background: rgba(255,255,255,.3); }
-
-    /* ── LAYOUT ── */
-    #content { display: flex; height: calc(100vh - 54px); }
-    #map { flex: 1; }
-
-    /* ── SIDEBAR ── */
-    #sidebar {
-      width: var(--sidebar-w); background: white;
-      display: none; flex-direction: column;
-      box-shadow: -4px 0 20px rgba(0,0,0,.12);
-      overflow: hidden; z-index: 500;
-    }
-    #sidebar.open { display: flex; }
-    #sidebar-header {
-      background: var(--primary); color: white; padding: 14px 16px;
-      display: flex; align-items: center; gap: 10px;
-    }
-    #sidebar-province-name { font-size: 18px; font-weight: 700; flex: 1; }
-    #sidebar-count { background: rgba(255,255,255,.25); border-radius: 12px; padding: 2px 10px; font-size: 13px; }
-    .close-btn {
-      background: rgba(255,255,255,.2); border: none; color: white;
-      width: 30px; height: 30px; border-radius: 50%; cursor: pointer; font-size: 16px;
-    }
-    #sidebar-actions { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; }
-    .add-btn {
-      background: var(--primary); color: white; border: none;
-      border-radius: 8px; padding: 8px 16px; font-size: 13px; font-weight: 600;
-      cursor: pointer; display: flex; align-items: center; gap: 6px; flex: 1; justify-content: center;
-    }
-    .add-btn:hover { background: var(--primary-dark); }
-
-    #sidebar-filter { padding: 8px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; flex-wrap: wrap; }
-    .sf-btn {
-      background: var(--bg); border: 1px solid var(--border); border-radius: 16px;
-      padding: 3px 10px; font-size: 11px; cursor: pointer; transition: all .15s;
-    }
-    .sf-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-    #sidebar-content { flex: 1; overflow-y: auto; padding: 12px 16px; }
-    #sidebar-content:empty::after { content: 'Chưa có địa điểm nào. Nhấn "+ Thêm địa điểm" để bắt đầu.'; display: block; text-align: center; color: var(--text-muted); padding: 40px 0; font-size: 14px; }
-
-    .location-card {
-      border: 1px solid var(--border); border-radius: 12px; padding: 14px;
-      margin-bottom: 12px; background: white; transition: box-shadow .2s;
-    }
-    .location-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
-    .card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-    .type-badge {
-      border-radius: 8px; padding: 4px 10px; font-size: 11px; font-weight: 600;
-      white-space: nowrap; flex-shrink: 0;
-    }
-    .type-hotel { background: #ebf8ff; color: #2b6cb0; }
-    .type-motorbike { background: #fffaf0; color: #c05621; }
-    .type-buucuc { background: #fff5f5; color: #c53030; }
-    .type-other { background: #f7fafc; color: #4a5568; }
-    .card-name { font-size: 15px; font-weight: 700; flex: 1; line-height: 1.3; }
-    .card-actions { display: flex; gap: 4px; }
-    .icon-btn {
-      background: none; border: 1px solid var(--border); border-radius: 6px;
-      width: 28px; height: 28px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center;
-      transition: all .15s;
-    }
-    .icon-btn:hover { background: var(--bg); }
-    .icon-btn.delete:hover { background: #fff5f5; border-color: #feb2b2; }
-    .card-info { display: flex; flex-direction: column; gap: 6px; }
-    .info-row { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; }
-    .info-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-    .info-text { color: var(--text); line-height: 1.4; flex: 1; }
-    .info-text a { color: var(--primary); text-decoration: none; font-weight: 500; }
-    .info-text a:hover { text-decoration: underline; }
-    .price-tag { color: var(--secondary); font-weight: 700; font-size: 14px; }
-    .notes-text { color: var(--text-muted); font-style: italic; }
-
-    .empty-province { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-    .empty-province .empty-icon { font-size: 48px; margin-bottom: 12px; }
-    .empty-province p { font-size: 14px; }
-
-    /* ── CUSTOM MAP MARKER ── */
-    .prov-marker {
-      border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; color: white;
-      border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,.3); cursor: pointer;
-      transition: transform .15s;
-    }
-    .prov-marker:hover { transform: scale(1.2); }
-    .prov-marker.has-data { background: var(--primary); }
-    .prov-marker.no-data { background: #a0aec0; }
-    .prov-marker.island { background: linear-gradient(135deg, #e53935, #ff8f00); border-color: #ffd54f; }
-
-    /* ── MODAL ── */
-    #modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,.5);
-      z-index: 9000; display: none; align-items: center; justify-content: center;
-    }
-    #modal-overlay.open { display: flex; }
-    #modal-box {
-      background: white; border-radius: 16px; width: 480px; max-width: 95vw;
-      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.3);
-    }
-    #modal-header {
-      background: var(--primary); color: white; padding: 16px 20px;
-      border-radius: 16px 16px 0 0; display: flex; align-items: center; justify-content: space-between;
-    }
-    #modal-title { font-size: 16px; font-weight: 700; }
-    #modal-body { padding: 20px; }
-    .form-group { margin-bottom: 14px; }
-    label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
-    input, select, textarea {
-      width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
-      font-size: 14px; font-family: inherit; color: var(--text); transition: border-color .2s;
-    }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(229,57,53,.1); }
-    textarea { min-height: 80px; resize: vertical; }
-    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-save { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; flex: 1; }
-    .btn-save:hover { background: var(--primary-dark); }
-    .btn-cancel { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; }
-    .btn-cancel:hover { background: var(--border); }
-
-    /* ── TOAST ── */
-    #toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
-      background: #1a202c; color: white; border-radius: 10px; padding: 10px 20px;
-      font-size: 14px; z-index: 9999; transition: transform .3s ease; box-shadow: 0 4px 20px rgba(0,0,0,.3);
-    }
-    #toast.show { transform: translateX(-50%) translateY(0); }
-
-    /* ── STATS BAR ── */
-    #stats-bar {
-      position: absolute; bottom: 20px; left: 20px; z-index: 999;
-      background: white; border-radius: 12px; padding: 10px 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,.15);
-      display: flex; gap: 16px; align-items: center; font-size: 13px;
-    }
-    .stat-item { display: flex; flex-direction: column; align-items: center; }
-    .stat-num { font-size: 20px; font-weight: 800; color: var(--primary); }
-    .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; }
-    .stat-divider { width: 1px; height: 32px; background: var(--border); }
-
-    /* Leaflet popup override */
-    .leaflet-popup-content-wrapper { border-radius: 10px !important; }
-
-    /* Scrollbar */
-    #sidebar-content::-webkit-scrollbar { width: 4px; }
-    #sidebar-content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-    @media (max-width: 640px) {
-      :root { --sidebar-w: 100vw; }
-      #header { flex-wrap: wrap; }
-      #filter-bar { order: 3; width: 100%; }
-      #stats-bar { display: none; }
-    }
-  </style>
-</head>
-<body>
-
-<!-- HEADER -->
-<div id="header">
-  <div>
-    <div class="logo">🏃 TRUERACE</div>
-    <div class="subtitle">Bản Đồ Vận Hành Sự Kiện</div>
-  </div>
-  <div id="filter-bar">
-    <button class="filter-btn active" data-type="all" onclick="setGlobalFilter('all')">📍 Tất cả</button>
-    <button class="filter-btn" data-type="hotel" onclick="setGlobalFilter('hotel')">🏨 Khách sạn/ Nhà nghỉ</button>
-    <button class="filter-btn" data-type="motorbike" onclick="setGlobalFilter('motorbike')">🏍 Xe máy</button>
-    <button class="filter-btn" data-type="buucuc" onclick="setGlobalFilter('buucuc')">📮 Bưu cục</button>
-  </div>
-  <div id="header-actions">
-    <button class="action-btn" id="btn-refresh" onclick="refreshFromSheets()">🔄 Cập nhật</button>
-    <span id="last-updated" style="font-size:11px;opacity:.7;align-self:center;white-space:nowrap;"></span>
-  </div>
-</div>
-
-<!-- CONTENT -->
-<div id="content">
-  <div id="map"></div>
-  <div id="sidebar">
-    <div id="sidebar-header">
-      <div>
-        <div id="sidebar-province-name">Chọn tỉnh/thành</div>
-        <div id="sidebar-count"></div>
-      </div>
-      <button class="close-btn" onclick="closeSidebar()">✕</button>
-    </div>
-    <div id="sidebar-actions" style="display:none"></div>
-    <div id="sidebar-filter">
-      <button class="sf-btn active" data-sf="all" onclick="setSidebarFilter('all')">Tất cả</button>
-      <button class="sf-btn" data-sf="hotel" onclick="setSidebarFilter('hotel')">🏨 KS/NQ</button>
-      <button class="sf-btn" data-sf="motorbike" onclick="setSidebarFilter('motorbike')">🏍 Xe máy</button>
-      <button class="sf-btn" data-sf="buucuc" onclick="setSidebarFilter('buucuc')">📮 Bưu cục</button>
-    </div>
-    <div id="sidebar-content"></div>
-  </div>
-</div>
-
-<!-- STATS BAR -->
-<div id="stats-bar">
-  <div class="stat-item">
-    <div class="stat-num" id="stat-provinces">0</div>
-    <div class="stat-label">Tỉnh/TP</div>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Báº£n Äá» Váº­n HÃ nh Sá»± Kiá»n â TrueRace</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <style>
@@ -491,7 +247,7 @@
   <div class="stat-divider"></div>
   <div class="stat-item">
     <div class="stat-num" id="stat-total">0</div>
-    <div class="stat-label">Äá»a Äiá»m</div>
+    <div class="stat-label">Äá»a Äiá»m</div>
   </div>
   <div class="stat-divider"></div>
   <div class="stat-item">
@@ -523,7 +279,7 @@ const PROVINCES = [
   { name:"Báº¯c Káº¡n",         lat:22.1474, lng:105.8343, region:"north" },
   { name:"Báº¯c Ninh",        lat:21.1214, lng:106.0765, region:"north" },
   { name:"Cao Báº±ng",        lat:22.6667, lng:106.2500, region:"north" },
-  { name:"Ãiá»n BiÃªn",       lat:21.3860, lng:103.0160, region:"north" },
+  { name:"Äiá»n BiÃªn",       lat:21.3860, lng:103.0160, region:"north" },
   { name:"HÃ  Giang",        lat:22.8231, lng:104.9840, region:"north" },
   { name:"HÃ  Nam",          lat:20.5453, lng:105.9222, region:"north" },
   { name:"Háº£i DÆ°Æ¡ng",       lat:20.9373, lng:106.3146, region:"north" },
@@ -540,13 +296,13 @@ const PROVINCES = [
   { name:"ThÃ¡i NguyÃªn",     lat:21.5936, lng:105.8481, region:"north" },
   { name:"TuyÃªn Quang",     lat:21.8289, lng:105.2133, region:"north" },
   { name:"VÄ©nh PhÃºc",       lat:21.3609, lng:105.5474, region:"north" },
-  { name:"YCªn BÃ¡i",         lat:21.7051, lng:104.8948, region:"north" },
+  { name:"YÃªn BÃ¡i",         lat:21.7051, lng:104.8948, region:"north" },
   // ââ Miá»n Trung ââ
   { name:"BÃ¬nh Äá»nh",       lat:14.1667, lng:108.9000, region:"central" },
   { name:"BÃ¬nh Thuáº­n",      lat:11.0904, lng:108.0720, region:"central" },
-  { name:"ÃÃ  Náºµng",         lat:16.0544, lng:108.2022, region:"central" },
-  { name:"Äáº¯k Máº¯k",         lat:12.6801, lng:108.0503, region:"central" },
-  { name:"Ãiáº¯k NÃ´ng",        lat:11.9904, lng:107.6904, region:"central" },
+  { name:"ÄÃ  Náºµng",         lat:16.0544, lng:108.2022, region:"central" },
+  { name:"Äáº¯k Láº¯k",         lat:12.6801, lng:108.0503, region:"central" },
+  { name:"Äáº¯k NÃ´ng",        lat:11.9904, lng:107.6904, region:"central" },
   { name:"Gia Lai",          lat:13.9833, lng:108.0000, region:"central" },
   { name:"HÃ  TÄ©nh",         lat:18.3560, lng:105.8877, region:"central" },
   { name:"KhÃ¡nh HÃ²a",       lat:12.2388, lng:109.1967, region:"central" },
@@ -567,12 +323,12 @@ const PROVINCES = [
   { name:"Báº¡c LiÃªu",         lat:9.2941,  lng:105.7215, region:"south" },
   { name:"Báº¿n Tre",           lat:10.2433, lng:106.3750, region:"south" },
   { name:"BÃ¬nh DÆ°Æ¡ng",        lat:11.1686, lng:106.6545, region:"south" },
-  { name:"BÃ¬nh Phq¡»c",        lat:11.7511, lng:106.7234, region:"south" },
+  { name:"BÃ¬nh PhÆ°á»c",        lat:11.7511, lng:106.7234, region:"south" },
   { name:"CÃ  Mau",            lat:9.1527,  lng:105.1961, region:"south" },
   { name:"Cáº§n ThÆ¡",           lat:10.0452, lng:105.7469, region:"south" },
   { name:"Äá»ng Nai",          lat:10.9453, lng:107.1416, region:"south" },
   { name:"Äá»ng ThÃ¡p",         lat:10.4900, lng:105.6880, region:"south" },
-  { name:"Háº¥u Giang",         lat:9.7572,  lng:105.6413, region:"south" },
+  { name:"Háº­u Giang",         lat:9.7572,  lng:105.6413, region:"south" },
   { name:"KiÃªn Giang",        lat:10.0125, lng:105.0809, region:"south" },
   { name:"Long An",           lat:10.6956, lng:106.2431, region:"south" },
   { name:"SÃ³c TrÄng",         lat:9.6003,  lng:105.9739, region:"south" },
@@ -581,34 +337,34 @@ const PROVINCES = [
   { name:"TP. Há» ChÃ­ Minh",   lat:10.8231, lng:106.6297, region:"south" },
   { name:"TrÃ  Vinh",          lat:9.9513,  lng:106.3423, region:"south" },
   { name:"VÄ©nh Long",         lat:10.2538, lng:105.9722, region:"south" },
-  // ââ Quáº§n dáº£o ââ
+  // ââ Quáº§n Äáº£o ââ
   { name:"HoÃ ng Sa",   lat:16.5000, lng:111.5000, region:"island", isIsland:true },
   { name:"TrÆ°á»ng Sa",  lat:9.5000,  lng:114.2000, region:"island", isIsland:true },
 ];
 
 // ââââââââââââââââââââââââââââââââââââââââ
-//  Dá» LI\u1EE6U M\u1EBAU (Sample Data)
+//  Dá»® LIá»U MáºªU (Sample Data)
 // ââââââââââââââââââââââââââââââââââââââââ
 const SAMPLE_DATA = {
   "HÃ  Ná»i": [
-    { id:"hn1", name:"KhÃ¡ch sáº¡n Máº¯ong Thanh Grand", type:"hotel",
-      address:"34 Äáº¡i Cá» Vieï´¡, Hai BÃ  TrÆ°ng, HÃ  Ná»i",
+    { id:"hn1", name:"KhÃ¡ch sáº¡n MÆ°á»ng Thanh Grand", type:"hotel",
+      address:"34 Äáº¡i Cá» Viá»t, Hai BÃ  TrÆ°ng, HÃ  Ná»i",
       mapsLink:"https://maps.app.goo.gl/example", phone:"024 3974 9999",
       price:"800,000 â 1,500,000 VNÄ/ÄÃªm", notes:"Gáº§n sÃ¢n Cá»t Cá», phÃ²ng rá»ng, cÃ³ há»i trÆ°á»ng tá» chá»©c há»p" },
     { id:"hn2", name:"ThuÃª xe mÃ¡y HoÃ ng Long", type:"motorbike",
       address:"15 Phá» Huáº¿, Hai BÃ  TrÆ°ng, HÃ  Ná»i",
       mapsLink:"https://maps.app.goo.gl/example2", phone:"0912 345 678",
-      price:"150,000 â 200,000 VNÄ/ngÃ y", notes:"Xe má»i, cÃ³ thá» giao xe táº­n nÆ¡i trong ná»i thÃ nh" }
+      price:"150,000 â 200,000 VNÄ/ngÃ y", notes:"Xe má»i, cÃ³ thá» giao xe táº­n nÆ¡i trong ná»i thÃ nh" }
   ],
   "ÄÃ  Náºµng": [
     { id:"dn1", name:"Brilliant Hotel", type:"hotel",
       address:"162 Báº¡ch Äáº±ng, Háº£i ChÃ¢u, ÄÃ  Náºµng",
       mapsLink:"https://maps.app.goo.gl/example3", phone:"0236 3222 999",
-      price:"900,000 â 1,800,000 VNÄ/ÄÃªm", notes:"View sÃ´ng HÃ n Äáº¹ep, gáº§n trung tÃ¢m giáº£i" },
+      price:"900,000 â 1,800,000 VNÄ/ÄÃªm", notes:"View sÃ´ng HÃ n Äáº¹p, gáº§n trung tÃ¢m giáº£i" },
     { id:"dn3", name:"Xe mÃ¡y Thanh BÃ¬nh", type:"motorbike",
-      address:"20 HÃ¹ng VÆ°¡ng, ÄÃ  Náºµng",
+      address:"20 HÃ¹ng VÆ°Æ¡ng, ÄÃ  Náºµng",
       mapsLink:"https://maps.app.goo.gl/example5", phone:"0905 678 901",
-      price:"100,000 â 150,000 VNÄ/ngÃ y", notes:"CÃ³ xe Wave, Exciter, Jupiter. Giáº£m giÃ¡ thuÃª dÃ i ngÃ y" }
+      price:"100,000 â 150,000 VNÄ/ngÃ y", notes:"CÃ³ xe Wave, Exciter, Jupiter. Giáº£m giÃ¡ thuÃª dÃ i ngÃ y" }
   ],
   "TP. Há» ChÃ­ Minh": [
     { id:"hcm1", name:"KhÃ¡ch sáº¡n Liberty Central Saigon", type:"hotel",
@@ -620,7 +376,7 @@ const SAMPLE_DATA = {
     { id:"kh1", name:"Sunrise Nha Trang Beach Hotel", type:"hotel",
       address:"12-14 Tráº§n PhÃº, Nha Trang",
       mapsLink:"https://maps.app.goo.gl/example8", phone:"0258 3820 999",
-      price:"1,500,000 â 3,000,000 VNÄ/ÄÃªm", notes:"Tháº³ng bÃ£i bieï´¡n, gáº§n khu vá»±c finish line Inyonman" }
+      price:"1,500,000 â 3,000,000 VNÄ/ÄÃªm", notes:"Tháº³ng bÃ£i biá»n, gáº§n khu vá»±c finish line Ironman" }
   ],
   "LÃ¢m Äá»ng": [
     { id:"ld1", name:"Dalat Palace Heritage Hotel", type:"hotel",
@@ -742,7 +498,7 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png
   subdomains: 'abcd'
 }).addTo(map);
 
-// ââ MASK: lÃ m lá» cÃ¡c nÆ°á»c ngoÃ i lÃ£nh thá» Viá»t Nam ââ
+// ââ MASK: lÃ m má» cÃ¡c nÆ°á»c ngoÃ i lÃ£nh thá» Viá»t Nam ââ
 // ÄÆ°á»ng biÃªn giá»i Viá»t Nam (ÄÆ¡n giáº£n hÃ³a)
 const VN_BORDER = [
   [22.5,102.2],[22.8,103.3],[23.0,104.0],[23.4,105.0],[23.3,105.9],
@@ -762,16 +518,16 @@ const VN_BORDER = [
   [21.0,102.8],[21.5,102.4],[22.0,102.1],[22.5,102.2]
 ];
 
-// Há»p bao toÃ n tháº¿ giá»i cÃ³ "lá» hiá»n" lÃ  Viá»t Nam â vÃ¹ng cÃ²n láº¡i bá» phá»§ má»
+// Há»p bao toÃ n tháº¿ giá»i cÃ³ "lá» há»ng" lÃ  Viá»t Nam â vÃ¹ng cÃ²n láº¡i bá» phá»§ má»
 const worldBox = [[-89,-179],[-89,179],[89,179],[89,-179]];
-L.polygon([worldBox, VM_BORDER], {
+L.polygon([worldBox, VN_BORDER], {
   color: 'transparent',
   fillColor: '#e8ecf0',
   fillOpacity: 0.60,
   interactive: false
 }).addTo(map);
 
-// Viá»n biÃªn giá»i Viá»t Nam lá»i báº­t
+// Viá»n biÃªn giá»i Viá»t Nam ná»i báº­t
 L.polygon(VN_BORDER, {
   color: '#e53935',
   weight: 1.5,
