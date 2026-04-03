@@ -406,7 +406,7 @@ async function fetchFromSheets() {
   const btn = document.getElementById('btn-refresh');
   if (btn) { btn.textContent = '⏳ Đang tải...'; btn.disabled = true; }
   try {
-    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+    const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&headers=1`;
     const res = await fetch(url);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const text = await res.text();
@@ -425,11 +425,11 @@ async function fetchFromSheets() {
         id: 'gs-' + Math.random().toString(36).substr(2,8),
         name,
         type:     get(2) || 'other',
-        address:  get(3),
-        mapsLink: get(4),
-        phone:    get(5),
-        price:    get(6),
-        notes:    get(7)
+        address:  '',
+        mapsLink: get(3),
+        phone:    get(4),
+        price:    get(5),
+        notes:    get(6)
       };
       if (!newData[province]) newData[province] = [];
       newData[province].push(loc);
