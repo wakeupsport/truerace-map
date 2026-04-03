@@ -421,6 +421,8 @@ async function fetchFromSheets() {
       const province = get(0);
       const name = get(1);
       if (!province || !name) return;
+      // Bỏ qua hàng tiêu đề nếu GViz trả về
+      if (province === 'Tỉnh/TP' || name === 'Tên địa điểm') return;
       const loc = {
         id: 'gs-' + Math.random().toString(36).substr(2,8),
         name,
