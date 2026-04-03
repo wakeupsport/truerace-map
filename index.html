@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Báº£n Äá» Váº­n HÃ nh Sá»± Kiá»n â TrueRace</title>
+  <title>Bản Đồ Vận Hành Sự Kiện — TrueRace</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <style>
     :root {
@@ -20,7 +20,7 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-    /* ââ HEADER ââ */
+    /* ── HEADER ── */
     #header {
       background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--secondary) 100%);
       color: white; padding: 10px 16px;
@@ -43,11 +43,11 @@
     }
     .action-btn:hover { background: rgba(255,255,255,.3); }
 
-    /* ââ LAYOUT ââ */
+    /* ── LAYOUT ── */
     #content { display: flex; height: calc(100vh - 54px); }
     #map { flex: 1; }
 
-    /* ââ SIDEBAR ââ */
+    /* ── SIDEBAR ── */
     #sidebar {
       width: var(--sidebar-w); background: white;
       display: none; flex-direction: column;
@@ -81,7 +81,7 @@
     .sf-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
     #sidebar-content { flex: 1; overflow-y: auto; padding: 12px 16px; }
-    #sidebar-content:empty::after { content: 'ChÆ°a cÃ³ Äá»a Äiá»m nÃ o. Nháº¥n "+ ThÃªm Äá»a Äiá»m" Äá» báº¯t Äáº§u.'; display: block; text-align: center; color: var(--text-muted); padding: 40px 0; font-size: 14px; }
+    #sidebar-content:empty::after { content: 'Chưa có địa điểm nào. Nhấn "+ Thêm địa điểm" để bắt đầu.'; display: block; text-align: center; color: var(--text-muted); padding: 40px 0; font-size: 14px; }
 
     .location-card {
       border: 1px solid var(--border); border-radius: 12px; padding: 14px;
@@ -119,7 +119,7 @@
     .empty-province .empty-icon { font-size: 48px; margin-bottom: 12px; }
     .empty-province p { font-size: 14px; }
 
-    /* ââ CUSTOM MAP MARKER ââ */
+    /* ── CUSTOM MAP MARKER ── */
     .prov-marker {
       border-radius: 50%; display: flex; align-items: center; justify-content: center;
       font-size: 11px; font-weight: 700; color: white;
@@ -131,7 +131,7 @@
     .prov-marker.no-data { background: #a0aec0; }
     .prov-marker.island { background: linear-gradient(135deg, #e53935, #ff8f00); border-color: #ffd54f; }
 
-    /* ââ MODAL ââ */
+    /* ── MODAL ── */
     #modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.5);
       z-index: 9000; display: none; align-items: center; justify-content: center;
@@ -161,7 +161,7 @@
     .btn-cancel { background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px 20px; font-size: 14px; cursor: pointer; }
     .btn-cancel:hover { background: var(--border); }
 
-    /* ââ TOAST ââ */
+    /* ── TOAST ── */
     #toast {
       position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(100px);
       background: #1a202c; color: white; border-radius: 10px; padding: 10px 20px;
@@ -169,7 +169,7 @@
     }
     #toast.show { transform: translateX(-50%) translateY(0); }
 
-    /* ââ STATS BAR ââ */
+    /* ── STATS BAR ── */
     #stats-bar {
       position: absolute; bottom: 20px; left: 20px; z-index: 999;
       background: white; border-radius: 12px; padding: 10px 16px;
@@ -201,17 +201,17 @@
 <!-- HEADER -->
 <div id="header">
   <div>
-    <div class="logo">ð TRUERACE</div>
-    <div class="subtitle">Báº£n Äá» Váº­n HÃ nh Sá»± Kiá»n</div>
+    <div class="logo">🏃 TRUERACE</div>
+    <div class="subtitle">Bản Đồ Vận Hành Sự Kiện</div>
   </div>
   <div id="filter-bar">
-    <button class="filter-btn active" data-type="all" onclick="setGlobalFilter('all')">ð Táº¥t cáº£</button>
-    <button class="filter-btn" data-type="hotel" onclick="setGlobalFilter('hotel')">ð¨ KhÃ¡ch sáº¡n/ NhÃ  nghá»</button>
-    <button class="filter-btn" data-type="motorbike" onclick="setGlobalFilter('motorbike')">ð Xe mÃ¡y</button>
-    <button class="filter-btn" data-type="buucuc" onclick="setGlobalFilter('buucuc')">ð® BÆ°u cá»¥c</button>
+    <button class="filter-btn active" data-type="all" onclick="setGlobalFilter('all')">📍 Tất cả</button>
+    <button class="filter-btn" data-type="hotel" onclick="setGlobalFilter('hotel')">🏨 Khách sạn/ Nhà nghỉ</button>
+    <button class="filter-btn" data-type="motorbike" onclick="setGlobalFilter('motorbike')">🏍 Xe máy</button>
+    <button class="filter-btn" data-type="buucuc" onclick="setGlobalFilter('buucuc')">📮 Bưu cục</button>
   </div>
   <div id="header-actions">
-    <button class="action-btn" id="btn-refresh" onclick="refreshFromSheets()">ð Cáº­p nháº­t</button>
+    <button class="action-btn" id="btn-refresh" onclick="refreshFromSheets()">🔄 Cập nhật</button>
     <span id="last-updated" style="font-size:11px;opacity:.7;align-self:center;white-space:nowrap;"></span>
   </div>
 </div>
@@ -222,17 +222,17 @@
   <div id="sidebar">
     <div id="sidebar-header">
       <div>
-        <div id="sidebar-province-name">Chá»n tá»nh/thÃ nh</div>
+        <div id="sidebar-province-name">Chọn tỉnh/thành</div>
         <div id="sidebar-count"></div>
       </div>
-      <button class="close-btn" onclick="closeSidebar()">â</button>
+      <button class="close-btn" onclick="closeSidebar()">✕</button>
     </div>
     <div id="sidebar-actions" style="display:none"></div>
     <div id="sidebar-filter">
-      <button class="sf-btn active" data-sf="all" onclick="setSidebarFilter('all')">Táº¥t cáº£</button>
-      <button class="sf-btn" data-sf="hotel" onclick="setSidebarFilter('hotel')">ð¨ KS/NQ</button>
-      <button class="sf-btn" data-sf="motorbike" onclick="setSidebarFilter('motorbike')">ð Xe mÃ¡y</button>
-      <button class="sf-btn" data-sf="buucuc" onclick="setSidebarFilter('buucuc')">ð® BÆ°u cá»¥c</button>
+      <button class="sf-btn active" data-sf="all" onclick="setSidebarFilter('all')">Tất cả</button>
+      <button class="sf-btn" data-sf="hotel" onclick="setSidebarFilter('hotel')">🏨 KS/NQ</button>
+      <button class="sf-btn" data-sf="motorbike" onclick="setSidebarFilter('motorbike')">🏍 Xe máy</button>
+      <button class="sf-btn" data-sf="buucuc" onclick="setSidebarFilter('buucuc')">📮 Bưu cục</button>
     </div>
     <div id="sidebar-content"></div>
   </div>
@@ -242,22 +242,22 @@
 <div id="stats-bar">
   <div class="stat-item">
     <div class="stat-num" id="stat-provinces">0</div>
-    <div class="stat-label">Tá»nh/TP</div>
+    <div class="stat-label">Tỉnh/TP</div>
   </div>
   <div class="stat-divider"></div>
   <div class="stat-item">
     <div class="stat-num" id="stat-total">0</div>
-    <div class="stat-label">Äá»a Äiá»m</div>
+    <div class="stat-label">Địa điểm</div>
   </div>
   <div class="stat-divider"></div>
   <div class="stat-item">
     <div class="stat-num" id="stat-hotels">0</div>
-    <div class="stat-label">KhÃ¡ch sáº¡n</div>
+    <div class="stat-label">Khách sạn</div>
   </div>
   <div class="stat-divider"></div>
   <div class="stat-item">
     <div class="stat-num" id="stat-bikes">0</div>
-    <div class="stat-label">Xe mÃ¡y</div>
+    <div class="stat-label">Xe máy</div>
   </div>
 </div>
 
@@ -267,141 +267,141 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-// ââââââââââââââââââââââââââââââââââââââââ
-//  DATA: 63 tá»nh/thÃ nh + HoÃ ng Sa + TrÆ°á»ng Sa
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
+//  DATA: 63 tỉnh/thành + Hoàng Sa + Trường Sa
+// ════════════════════════════════════════
 const PROVINCES = [
-  // ââ Miá»n Báº¯c ââ
-  { name:"HÃ  Ná»i",          lat:21.0285, lng:105.8542, region:"north" },
-  { name:"Háº£i PhÃ²ng",       lat:20.8449, lng:106.6881, region:"north" },
-  { name:"Quáº£ng Ninh",      lat:21.0064, lng:107.2925, region:"north" },
-  { name:"Báº¯c Giang",       lat:21.2819, lng:106.2032, region:"north" },
-  { name:"Báº¯c Káº¡n",         lat:22.1474, lng:105.8343, region:"north" },
-  { name:"Báº¯c Ninh",        lat:21.1214, lng:106.0765, region:"north" },
-  { name:"Cao Báº±ng",        lat:22.6667, lng:106.2500, region:"north" },
-  { name:"Äiá»n BiÃªn",       lat:21.3860, lng:103.0160, region:"north" },
-  { name:"HÃ  Giang",        lat:22.8231, lng:104.9840, region:"north" },
-  { name:"HÃ  Nam",          lat:20.5453, lng:105.9222, region:"north" },
-  { name:"Háº£i DÆ°Æ¡ng",       lat:20.9373, lng:106.3146, region:"north" },
-  { name:"HÃ²a BÃ¬nh",        lat:20.8133, lng:105.3383, region:"north" },
-  { name:"HÆ°ng YÃªn",        lat:20.6461, lng:106.0510, region:"north" },
-  { name:"Lai ChÃ¢u",        lat:22.3856, lng:103.4596, region:"north" },
-  { name:"Láº¡ng SÆ¡n",        lat:21.8537, lng:106.7615, region:"north" },
-  { name:"LÃ o Cai",         lat:22.3364, lng:103.9753, region:"north" },
-  { name:"Nam Äá»nh",        lat:20.4338, lng:106.1623, region:"north" },
-  { name:"Ninh BÃ¬nh",       lat:20.2500, lng:105.9744, region:"north" },
-  { name:"PhÃº Thá»",         lat:21.3993, lng:105.2317, region:"north" },
-  { name:"SÆ¡n La",          lat:21.3256, lng:103.9188, region:"north" },
-  { name:"ThÃ¡i BÃ¬nh",       lat:20.4463, lng:106.3366, region:"north" },
-  { name:"ThÃ¡i NguyÃªn",     lat:21.5936, lng:105.8481, region:"north" },
-  { name:"TuyÃªn Quang",     lat:21.8289, lng:105.2133, region:"north" },
-  { name:"VÄ©nh PhÃºc",       lat:21.3609, lng:105.5474, region:"north" },
-  { name:"YÃªn BÃ¡i",         lat:21.7051, lng:104.8948, region:"north" },
-  // ââ Miá»n Trung ââ
-  { name:"BÃ¬nh Äá»nh",       lat:14.1667, lng:108.9000, region:"central" },
-  { name:"BÃ¬nh Thuáº­n",      lat:11.0904, lng:108.0720, region:"central" },
-  { name:"ÄÃ  Náºµng",         lat:16.0544, lng:108.2022, region:"central" },
-  { name:"Äáº¯k Láº¯k",         lat:12.6801, lng:108.0503, region:"central" },
-  { name:"Äáº¯k NÃ´ng",        lat:11.9904, lng:107.6904, region:"central" },
+  // ── Miền Bắc ──
+  { name:"Hà Nội",          lat:21.0285, lng:105.8542, region:"north" },
+  { name:"Hải Phòng",       lat:20.8449, lng:106.6881, region:"north" },
+  { name:"Quảng Ninh",      lat:21.0064, lng:107.2925, region:"north" },
+  { name:"Bắc Giang",       lat:21.2819, lng:106.2032, region:"north" },
+  { name:"Bắc Kạn",         lat:22.1474, lng:105.8343, region:"north" },
+  { name:"Bắc Ninh",        lat:21.1214, lng:106.0765, region:"north" },
+  { name:"Cao Bằng",        lat:22.6667, lng:106.2500, region:"north" },
+  { name:"Điện Biên",       lat:21.3860, lng:103.0160, region:"north" },
+  { name:"Hà Giang",        lat:22.8231, lng:104.9840, region:"north" },
+  { name:"Hà Nam",          lat:20.5453, lng:105.9222, region:"north" },
+  { name:"Hải Dương",       lat:20.9373, lng:106.3146, region:"north" },
+  { name:"Hòa Bình",        lat:20.8133, lng:105.3383, region:"north" },
+  { name:"Hưng Yên",        lat:20.6461, lng:106.0510, region:"north" },
+  { name:"Lai Châu",        lat:22.3856, lng:103.4596, region:"north" },
+  { name:"Lạng Sơn",        lat:21.8537, lng:106.7615, region:"north" },
+  { name:"Lào Cai",         lat:22.3364, lng:103.9753, region:"north" },
+  { name:"Nam Định",        lat:20.4338, lng:106.1623, region:"north" },
+  { name:"Ninh Bình",       lat:20.2500, lng:105.9744, region:"north" },
+  { name:"Phú Thọ",         lat:21.3993, lng:105.2317, region:"north" },
+  { name:"Sơn La",          lat:21.3256, lng:103.9188, region:"north" },
+  { name:"Thái Bình",       lat:20.4463, lng:106.3366, region:"north" },
+  { name:"Thái Nguyên",     lat:21.5936, lng:105.8481, region:"north" },
+  { name:"Tuyên Quang",     lat:21.8289, lng:105.2133, region:"north" },
+  { name:"Vĩnh Phúc",       lat:21.3609, lng:105.5474, region:"north" },
+  { name:"Yên Bái",         lat:21.7051, lng:104.8948, region:"north" },
+  // ── Miền Trung ──
+  { name:"Bình Định",       lat:14.1667, lng:108.9000, region:"central" },
+  { name:"Bình Thuận",      lat:11.0904, lng:108.0720, region:"central" },
+  { name:"Đà Nẵng",         lat:16.0544, lng:108.2022, region:"central" },
+  { name:"Đắk Lắk",         lat:12.6801, lng:108.0503, region:"central" },
+  { name:"Đắk Nông",        lat:11.9904, lng:107.6904, region:"central" },
   { name:"Gia Lai",          lat:13.9833, lng:108.0000, region:"central" },
-  { name:"HÃ  TÄ©nh",         lat:18.3560, lng:105.8877, region:"central" },
-  { name:"KhÃ¡nh HÃ²a",       lat:12.2388, lng:109.1967, region:"central" },
+  { name:"Hà Tĩnh",         lat:18.3560, lng:105.8877, region:"central" },
+  { name:"Khánh Hòa",       lat:12.2388, lng:109.1967, region:"central" },
   { name:"Kon Tum",          lat:14.3497, lng:107.9988, region:"central" },
-  { name:"LÃ¢m Äá»ng",        lat:11.9465, lng:108.4419, region:"central" },
-  { name:"Nghá» An",          lat:19.2342, lng:104.9200, region:"central" },
-  { name:"Ninh Thuáº­n",       lat:11.5645, lng:108.9883, region:"central" },
-  { name:"PhÃº YÃªn",          lat:13.0882, lng:109.0928, region:"central" },
-  { name:"Quáº£ng BÃ¬nh",       lat:17.4833, lng:106.6224, region:"central" },
-  { name:"Quáº£ng Nam",        lat:15.5393, lng:108.0191, region:"central" },
-  { name:"Quáº£ng NgÃ£i",       lat:15.1214, lng:108.8044, region:"central" },
-  { name:"Quáº£ng Trá»",        lat:16.7500, lng:107.2000, region:"central" },
-  { name:"Thanh HÃ³a",        lat:19.8079, lng:105.7764, region:"central" },
-  { name:"Thá»«a ThiÃªn Huáº¿",   lat:16.4637, lng:107.5909, region:"central" },
-  // ââ Miá»n Nam ââ
+  { name:"Lâm Đồng",        lat:11.9465, lng:108.4419, region:"central" },
+  { name:"Nghệ An",          lat:19.2342, lng:104.9200, region:"central" },
+  { name:"Ninh Thuận",       lat:11.5645, lng:108.9883, region:"central" },
+  { name:"Phú Yên",          lat:13.0882, lng:109.0928, region:"central" },
+  { name:"Quảng Bình",       lat:17.4833, lng:106.6224, region:"central" },
+  { name:"Quảng Nam",        lat:15.5393, lng:108.0191, region:"central" },
+  { name:"Quảng Ngãi",       lat:15.1214, lng:108.8044, region:"central" },
+  { name:"Quảng Trị",        lat:16.7500, lng:107.2000, region:"central" },
+  { name:"Thanh Hóa",        lat:19.8079, lng:105.7764, region:"central" },
+  { name:"Thừa Thiên Huế",   lat:16.4637, lng:107.5909, region:"central" },
+  // ── Miền Nam ──
   { name:"An Giang",         lat:10.3864, lng:105.4350, region:"south" },
-  { name:"BÃ  Rá»a - VÅ©ng TÃ u",lat:10.3460, lng:107.0843, region:"south" },
-  { name:"Báº¡c LiÃªu",         lat:9.2941,  lng:105.7215, region:"south" },
-  { name:"Báº¿n Tre",           lat:10.2433, lng:106.3750, region:"south" },
-  { name:"BÃ¬nh DÆ°Æ¡ng",        lat:11.1686, lng:106.6545, region:"south" },
-  { name:"BÃ¬nh PhÆ°á»c",        lat:11.7511, lng:106.7234, region:"south" },
-  { name:"CÃ  Mau",            lat:9.1527,  lng:105.1961, region:"south" },
-  { name:"Cáº§n ThÆ¡",           lat:10.0452, lng:105.7469, region:"south" },
-  { name:"Äá»ng Nai",          lat:10.9453, lng:107.1416, region:"south" },
-  { name:"Äá»ng ThÃ¡p",         lat:10.4900, lng:105.6880, region:"south" },
-  { name:"Háº­u Giang",         lat:9.7572,  lng:105.6413, region:"south" },
-  { name:"KiÃªn Giang",        lat:10.0125, lng:105.0809, region:"south" },
+  { name:"Bà Rịa - Vũng Tàu",lat:10.3460, lng:107.0843, region:"south" },
+  { name:"Bạc Liêu",         lat:9.2941,  lng:105.7215, region:"south" },
+  { name:"Bến Tre",           lat:10.2433, lng:106.3750, region:"south" },
+  { name:"Bình Dương",        lat:11.1686, lng:106.6545, region:"south" },
+  { name:"Bình Phước",        lat:11.7511, lng:106.7234, region:"south" },
+  { name:"Cà Mau",            lat:9.1527,  lng:105.1961, region:"south" },
+  { name:"Cần Thơ",           lat:10.0452, lng:105.7469, region:"south" },
+  { name:"Đồng Nai",          lat:10.9453, lng:107.1416, region:"south" },
+  { name:"Đồng Tháp",         lat:10.4900, lng:105.6880, region:"south" },
+  { name:"Hậu Giang",         lat:9.7572,  lng:105.6413, region:"south" },
+  { name:"Kiên Giang",        lat:10.0125, lng:105.0809, region:"south" },
   { name:"Long An",           lat:10.6956, lng:106.2431, region:"south" },
-  { name:"SÃ³c TrÄng",         lat:9.6003,  lng:105.9739, region:"south" },
-  { name:"TÃ¢y Ninh",          lat:11.3103, lng:106.0985, region:"south" },
-  { name:"Tiá»n Giang",        lat:10.3600, lng:106.3600, region:"south" },
-  { name:"TP. Há» ChÃ­ Minh",   lat:10.8231, lng:106.6297, region:"south" },
-  { name:"TrÃ  Vinh",          lat:9.9513,  lng:106.3423, region:"south" },
-  { name:"VÄ©nh Long",         lat:10.2538, lng:105.9722, region:"south" },
-  // ââ Quáº§n Äáº£o ââ
-  { name:"HoÃ ng Sa",   lat:16.5000, lng:111.5000, region:"island", isIsland:true },
-  { name:"TrÆ°á»ng Sa",  lat:9.5000,  lng:114.2000, region:"island", isIsland:true },
+  { name:"Sóc Trăng",         lat:9.6003,  lng:105.9739, region:"south" },
+  { name:"Tây Ninh",          lat:11.3103, lng:106.0985, region:"south" },
+  { name:"Tiền Giang",        lat:10.3600, lng:106.3600, region:"south" },
+  { name:"TP. Hồ Chí Minh",   lat:10.8231, lng:106.6297, region:"south" },
+  { name:"Trà Vinh",          lat:9.9513,  lng:106.3423, region:"south" },
+  { name:"Vĩnh Long",         lat:10.2538, lng:105.9722, region:"south" },
+  // ── Quần đảo ──
+  { name:"Hoàng Sa",   lat:16.5000, lng:111.5000, region:"island", isIsland:true },
+  { name:"Trường Sa",  lat:9.5000,  lng:114.2000, region:"island", isIsland:true },
 ];
 
-// ââââââââââââââââââââââââââââââââââââââââ
-//  Dá»® LIá»U MáºªU (Sample Data)
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
+//  DỮ LIỆU MẪU (Sample Data)
+// ════════════════════════════════════════
 const SAMPLE_DATA = {
-  "HÃ  Ná»i": [
-    { id:"hn1", name:"KhÃ¡ch sáº¡n MÆ°á»ng Thanh Grand", type:"hotel",
-      address:"34 Äáº¡i Cá» Viá»t, Hai BÃ  TrÆ°ng, HÃ  Ná»i",
+  "Hà Nội": [
+    { id:"hn1", name:"Khách sạn Mường Thanh Grand", type:"hotel",
+      address:"34 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
       mapsLink:"https://maps.app.goo.gl/example", phone:"024 3974 9999",
-      price:"800,000 â 1,500,000 VNÄ/ÄÃªm", notes:"Gáº§n sÃ¢n Cá»t Cá», phÃ²ng rá»ng, cÃ³ há»i trÆ°á»ng tá» chá»©c há»p" },
-    { id:"hn2", name:"ThuÃª xe mÃ¡y HoÃ ng Long", type:"motorbike",
-      address:"15 Phá» Huáº¿, Hai BÃ  TrÆ°ng, HÃ  Ná»i",
+      price:"800,000 – 1,500,000 VNĐ/đêm", notes:"Gần sân Cột Cờ, phòng rộng, có hội trường tổ chức họp" },
+    { id:"hn2", name:"Thuê xe máy Hoàng Long", type:"motorbike",
+      address:"15 Phố Huế, Hai Bà Trưng, Hà Nội",
       mapsLink:"https://maps.app.goo.gl/example2", phone:"0912 345 678",
-      price:"150,000 â 200,000 VNÄ/ngÃ y", notes:"Xe má»i, cÃ³ thá» giao xe táº­n nÆ¡i trong ná»i thÃ nh" }
+      price:"150,000 – 200,000 VNĐ/ngày", notes:"Xe mới, có thể giao xe tận nơi trong nội thành" }
   ],
-  "ÄÃ  Náºµng": [
+  "Đà Nẵng": [
     { id:"dn1", name:"Brilliant Hotel", type:"hotel",
-      address:"162 Báº¡ch Äáº±ng, Háº£i ChÃ¢u, ÄÃ  Náºµng",
+      address:"162 Bạch Đằng, Hải Châu, Đà Nẵng",
       mapsLink:"https://maps.app.goo.gl/example3", phone:"0236 3222 999",
-      price:"900,000 â 1,800,000 VNÄ/ÄÃªm", notes:"View sÃ´ng HÃ n Äáº¹p, gáº§n trung tÃ¢m giáº£i" },
-    { id:"dn3", name:"Xe mÃ¡y Thanh BÃ¬nh", type:"motorbike",
-      address:"20 HÃ¹ng VÆ°Æ¡ng, ÄÃ  Náºµng",
+      price:"900,000 – 1,800,000 VNĐ/đêm", notes:"View sông Hàn đẹp, gần trung tâm giải" },
+    { id:"dn3", name:"Xe máy Thanh Bình", type:"motorbike",
+      address:"20 Hùng Vương, Đà Nẵng",
       mapsLink:"https://maps.app.goo.gl/example5", phone:"0905 678 901",
-      price:"100,000 â 150,000 VNÄ/ngÃ y", notes:"CÃ³ xe Wave, Exciter, Jupiter. Giáº£m giÃ¡ thuÃª dÃ i ngÃ y" }
+      price:"100,000 – 150,000 VNĐ/ngày", notes:"Có xe Wave, Exciter, Jupiter. Giảm giá thuê dài ngày" }
   ],
-  "TP. Há» ChÃ­ Minh": [
-    { id:"hcm1", name:"KhÃ¡ch sáº¡n Liberty Central Saigon", type:"hotel",
-      address:"59-61 Pasteur, Quáº­n 1, TP.HCM",
+  "TP. Hồ Chí Minh": [
+    { id:"hcm1", name:"Khách sạn Liberty Central Saigon", type:"hotel",
+      address:"59-61 Pasteur, Quận 1, TP.HCM",
       mapsLink:"https://maps.app.goo.gl/example6", phone:"028 3829 0000",
-      price:"1,200,000 â 2,500,000 VNÄ/ÄÃªm", notes:"Gáº§n há» Con RÃ¹a, tiá»n di chuyá»n" }
+      price:"1,200,000 – 2,500,000 VNĐ/đêm", notes:"Gần hồ Con Rùa, tiện di chuyển" }
   ],
-  "KhÃ¡nh HÃ²a": [
+  "Khánh Hòa": [
     { id:"kh1", name:"Sunrise Nha Trang Beach Hotel", type:"hotel",
-      address:"12-14 Tráº§n PhÃº, Nha Trang",
+      address:"12-14 Trần Phú, Nha Trang",
       mapsLink:"https://maps.app.goo.gl/example8", phone:"0258 3820 999",
-      price:"1,500,000 â 3,000,000 VNÄ/ÄÃªm", notes:"Tháº³ng bÃ£i biá»n, gáº§n khu vá»±c finish line Ironman" }
+      price:"1,500,000 – 3,000,000 VNĐ/đêm", notes:"Thẳng bãi biển, gần khu vực finish line Ironman" }
   ],
-  "LÃ¢m Äá»ng": [
+  "Lâm Đồng": [
     { id:"ld1", name:"Dalat Palace Heritage Hotel", type:"hotel",
-      address:"12 Tráº§n PhÃº, ÄÃ  Láº¡t",
+      address:"12 Trần Phú, Đà Lạt",
       mapsLink:"https://maps.app.goo.gl/example9", phone:"0263 3825 444",
-      price:"2,000,000 â 4,000,000 VNÄ/ÄÃªm", notes:"KhÃ¡ch sáº¡n lá»ch sá»­, gáº§n trung tÃ¢m thÃ nh phá» ÄÃ  Láº¡t" }
+      price:"2,000,000 – 4,000,000 VNĐ/đêm", notes:"Khách sạn lịch sử, gần trung tâm thành phố Đà Lạt" }
   ]
 };
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  STATE
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 const STORAGE_KEY = 'truerace-map-v2';
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  GOOGLE SHEETS CONFIG
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 // Paste your Google Sheet ID here after making the sheet public (Anyone with link - Viewer)
 // Example: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms'
-const SHEET_ID = '1U6tPsvqXyCVSOO8vsvU03jbxjYWGRjBfliUxFNwS2fk';  // TrueRace Äá»a Äiá»m CÃ´ng TÃ¡c
+const SHEET_ID = '1U6tPsvqXyCVSOO8vsvU03jbxjYWGRjBfliUxFNwS2fk';  // TrueRace Địa Điểm Công Tác
 
 async function fetchFromSheets() {
   if (!SHEET_ID) return false;
   const btn = document.getElementById('btn-refresh');
-  if (btn) { btn.textContent = 'â³ Äang táº£i...'; btn.disabled = true; }
+  if (btn) { btn.textContent = '⏳ Đang tải...'; btn.disabled = true; }
   try {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
     const res = await fetch(url);
@@ -436,14 +436,14 @@ async function fetchFromSheets() {
       const now = new Date();
       const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
       const el = document.getElementById('last-updated');
-      if (el) el.textContent = 'Cáº­p nháº­t ' + timeStr;
+      if (el) el.textContent = 'Cập nhật ' + timeStr;
       return true;
     }
   } catch(e) {
     console.error('Sheets fetch error:', e);
-    showToast('â ï¸ KhÃ´ng thá» táº£i tá»« Google Sheets. Äang dÃ¹ng dá»¯ liá»u cá»¥c bá».');
+    showToast('⚠️ Không thể tải từ Google Sheets. Đang dùng dữ liệu cục bộ.');
   } finally {
-    if (btn) { btn.textContent = 'ð Cáº­p nháº­t'; btn.disabled = false; }
+    if (btn) { btn.textContent = '🔄 Cập nhật'; btn.disabled = false; }
   }
   return false;
 }
@@ -454,7 +454,7 @@ async function refreshFromSheets() {
     refreshMarkers();
     if (currentProvince) renderSidebarContent();
     updateStats();
-    showToast('â ÄÃ£ táº£i dá»¯ liá»u má»i tá»« Google Sheets!');
+    showToast('✅ Đã tải dữ liệu mới từ Google Sheets!');
   }
 }
 
@@ -481,9 +481,9 @@ function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  MAP INITIALIZATION
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 loadData();
 const map = L.map('map', {
   center: [15.5, 107.5],
@@ -491,15 +491,15 @@ const map = L.map('map', {
   zoomControl: true
 });
 
-// Tile nháº¹, mÃ u xÃ¡m nháº¡t â cÃ¡c nÆ°á»c lÃ¢n cáº­n khÃ´ng ná»i báº­t
+// Tile nhẹ, màu xám nhạt — các nước lân cận không nổi bật
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-  attribution: 'Â© <a href="https://carto.com/">CARTO</a> Â© <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+  attribution: '© <a href="https://carto.com/">CARTO</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
   maxZoom: 19,
   subdomains: 'abcd'
 }).addTo(map);
 
-// ââ MASK: lÃ m má» cÃ¡c nÆ°á»c ngoÃ i lÃ£nh thá» Viá»t Nam ââ
-// ÄÆ°á»ng biÃªn giá»i Viá»t Nam (ÄÆ¡n giáº£n hÃ³a)
+// ── MASK: làm mờ các nước ngoài lãnh thổ Việt Nam ──
+// Đường biên giới Việt Nam (đơn giản hóa)
 const VN_BORDER = [
   [22.5,102.2],[22.8,103.3],[23.0,104.0],[23.4,105.0],[23.3,105.9],
   [22.9,106.2],[22.5,106.7],[21.5,108.0],[21.1,108.0],[20.9,107.4],
@@ -518,7 +518,7 @@ const VN_BORDER = [
   [21.0,102.8],[21.5,102.4],[22.0,102.1],[22.5,102.2]
 ];
 
-// Há»p bao toÃ n tháº¿ giá»i cÃ³ "lá» há»ng" lÃ  Viá»t Nam â vÃ¹ng cÃ²n láº¡i bá» phá»§ má»
+// Hộp bao toàn thế giới có "lỗ hổng" là Việt Nam → vùng còn lại bị phủ mờ
 const worldBox = [[-89,-179],[-89,179],[89,179],[89,-179]];
 L.polygon([worldBox, VN_BORDER], {
   color: 'transparent',
@@ -527,7 +527,7 @@ L.polygon([worldBox, VN_BORDER], {
   interactive: false
 }).addTo(map);
 
-// Viá»n biÃªn giá»i Viá»t Nam ná»i báº­t
+// Viền biên giới Việt Nam nổi bật
 L.polygon(VN_BORDER, {
   color: '#e53935',
   weight: 1.5,
@@ -536,9 +536,9 @@ L.polygon(VN_BORDER, {
   interactive: false
 }).addTo(map);
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  MARKER HELPERS
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function countForProvince(name) {
   const locs = data[name] || [];
   if (globalFilter === 'all') return locs.length;
@@ -561,9 +561,9 @@ function makeIcon(name) {
   });
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  BUILD MARKERS
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function buildMarkers() {
   PROVINCES.forEach(prov => {
     const marker = L.marker([prov.lat, prov.lng], { icon: makeIcon(prov.name) })
@@ -571,7 +571,7 @@ function buildMarkers() {
       .on('click', () => openSidebar(prov.name));
 
     const label = prov.isIsland
-      ? `ðï¸ ${prov.name} (Viá»t Nam)`
+      ? `🏝️ ${prov.name} (Việt Nam)`
       : prov.name;
     marker.bindTooltip(label, { direction: 'top', offset: [0,-8], opacity: 0.95 });
     markers[prov.name] = marker;
@@ -587,9 +587,9 @@ function refreshMarkers() {
   updateStats();
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  SIDEBAR
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function openSidebar(provinceName) {
   currentProvince = provinceName;
   sidebarFilter = 'all';
@@ -612,21 +612,21 @@ function renderSidebarContent() {
 
   const countEl = document.getElementById('sidebar-count');
   const total = (data[currentProvince] || []).length;
-  countEl.textContent = total > 0 ? `${total} Äá»a Äiá»m` : 'ChÆ°a cÃ³ dá»¯ liá»u';
+  countEl.textContent = total > 0 ? `${total} địa điểm` : 'Chưa có dữ liệu';
 
   const el = document.getElementById('sidebar-content');
   if (locs.length === 0) {
-    el.innerHTML = `<div class="empty-province"><div class="empty-icon">ð</div><p>ChÆ°a cÃ³ Äá»a Äiá»m${sidebarFilter !== 'all' ? ' thuá»c loáº¡i nÃ y' : ''}.<br/>Nháº¥n <b>+ ThÃªm Äá»a Äiá»m</b> Äá» báº¯t Äáº§u.</p></div>`;
+    el.innerHTML = `<div class="empty-province"><div class="empty-icon">📍</div><p>Chưa có địa điểm${sidebarFilter !== 'all' ? ' thuộc loại này' : ''}.<br/>Nhấn <b>+ Thêm địa điểm</b> để bắt đầu.</p></div>`;
     return;
   }
   el.innerHTML = locs.map(loc => renderCard(loc)).join('');
 }
 
 const TYPE_META = {
-  hotel:     { label:'KhÃ¡ch sáº¡n/ NhÃ  nghá»', cls:'type-hotel',     icon:'ð¨' },
-  motorbike: { label:'Xe mÃ¡y',             cls:'type-motorbike', icon:'ð' },
-  buucuc:    { label:'BÆ°u cá»¥c',            cls:'type-buucuc',    icon:'ð®' },
-  other:     { label:'KhÃ¡c',               cls:'type-other',     icon:'ð' },
+  hotel:     { label:'Khách sạn/ Nhà nghỉ', cls:'type-hotel',     icon:'🏨' },
+  motorbike: { label:'Xe máy',             cls:'type-motorbike', icon:'🏍' },
+  buucuc:    { label:'Bưu cục',            cls:'type-buucuc',    icon:'📮' },
+  other:     { label:'Khác',               cls:'type-other',     icon:'📍' },
 };
 
 function renderCard(loc) {
@@ -639,17 +639,17 @@ function renderCard(loc) {
       <div class="card-actions"></div>
     </div>
     <div class="card-info">
-      ${loc.address ? `<div class="info-row"><span class="info-icon">ð</span><span class="info-text">${escHtml(loc.address)}${loc.mapsLink ? ` &nbsp;<a href="${escHtml(loc.mapsLink)}" target="_blank">â Maps</a>` : ''}</span></div>` : ''}
-      ${loc.phone ? `<div class="info-row"><span class="info-icon">ð</span><span class="info-text"><a href="tel:${escHtml(loc.phone)}">${escHtml(loc.phone)}</a></span></div>` : ''}
-      ${loc.price ? `<div class="info-row"><span class="info-icon">ð°</span><span class="info-text price-tag">${escHtml(loc.price)}</span></div>` : ''}
-      ${loc.notes ? `<div class="info-row"><span class="info-icon">ð</span><span class="info-text notes-text">${escHtml(loc.notes)}</span></div>` : ''}
+      ${loc.address ? `<div class="info-row"><span class="info-icon">📍</span><span class="info-text">${escHtml(loc.address)}${loc.mapsLink ? ` &nbsp;<a href="${escHtml(loc.mapsLink)}" target="_blank">→ Maps</a>` : ''}</span></div>` : ''}
+      ${loc.phone ? `<div class="info-row"><span class="info-icon">📞</span><span class="info-text"><a href="tel:${escHtml(loc.phone)}">${escHtml(loc.phone)}</a></span></div>` : ''}
+      ${loc.price ? `<div class="info-row"><span class="info-icon">💰</span><span class="info-text price-tag">${escHtml(loc.price)}</span></div>` : ''}
+      ${loc.notes ? `<div class="info-row"><span class="info-icon">📝</span><span class="info-text notes-text">${escHtml(loc.notes)}</span></div>` : ''}
     </div>
   </div>`;
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  FILTERS
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function setGlobalFilter(type) {
   globalFilter = type;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.type === type));
@@ -663,12 +663,12 @@ function setSidebarFilter(type) {
   renderSidebarContent();
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  ADD / EDIT / DELETE
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function openAddModal() {
   editingId = null;
-  document.getElementById('modal-title').textContent = `ThÃªm Äá»a Äiá»m â ${currentProvince}`;
+  document.getElementById('modal-title').textContent = `Thêm địa điểm — ${currentProvince}`;
   clearForm();
   document.getElementById('modal-overlay').classList.add('open');
 }
@@ -678,7 +678,7 @@ function openEditModal(id) {
   const loc = locs.find(l => l.id === id);
   if (!loc) return;
   editingId = id;
-  document.getElementById('modal-title').textContent = 'Chá»nh sá»­a Äá»a Äiá»m';
+  document.getElementById('modal-title').textContent = 'Chỉnh sửa địa điểm';
   document.getElementById('f-name').value = loc.name || '';
   document.getElementById('f-type').value = loc.type || 'hotel';
   document.getElementById('f-address').value = loc.address || '';
@@ -699,8 +699,8 @@ function clearForm() {
 
 function saveLocation() {
   const name = document.getElementById('f-name').value.trim();
-  if (!name) { showToast('â ï¸ Vui lÃ²ng nháº­p tÃªn Äá»a Äiá»m!'); return; }
-  if (!currentProvince) { showToast('â ï¸ ChÆ°a chá»n tá»nh/thÃ nh!'); return; }
+  if (!name) { showToast('⚠️ Vui lòng nhập tên địa điểm!'); return; }
+  if (!currentProvince) { showToast('⚠️ Chưa chọn tỉnh/thành!'); return; }
 
   const loc = {
     id: editingId || ('loc-' + Date.now()),
@@ -725,23 +725,23 @@ function saveLocation() {
   closeModal();
   renderSidebarContent();
   refreshMarkers();
-  showToast(editingId ? 'â ÄÃ£ cáº­p nháº­t Äá»a Äiá»m!' : 'â ÄÃ£ thÃªm Äá»a Äiá»m má»i!');
+  showToast(editingId ? '✅ Đã cập nhật địa điểm!' : '✅ Đã thêm địa điểm mới!');
 }
 
 function deleteLocation(id) {
-  if (!confirm('XÃ³a Äá»a Äiá»m nÃ y?')) return;
+  if (!confirm('Xóa địa điểm này?')) return;
   if (!data[currentProvince]) return;
   data[currentProvince] = data[currentProvince].filter(l => l.id !== id);
   if (data[currentProvince].length === 0) delete data[currentProvince];
   saveData();
   renderSidebarContent();
   refreshMarkers();
-  showToast('ðï¸ ÄÃ£ xÃ³a Äá»a Äiá»m!');
+  showToast('🗑️ Đã xóa địa điểm!');
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  MODAL CONTROL
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
 }
@@ -749,9 +749,9 @@ function handleOverlayClick(e) {
   if (e.target === document.getElementById('modal-overlay')) closeModal();
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  EXPORT / IMPORT
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function exportData() {
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type:'application/json' });
@@ -761,7 +761,7 @@ function exportData() {
   a.download = `truerace-map-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast('ð¤ ÄÃ£ xuáº¥t dá»¯ liá»u thÃ nh cÃ´ng!');
+  showToast('📤 Đã xuất dữ liệu thành công!');
 }
 function triggerImport() {
   document.getElementById('import-input').click();
@@ -774,21 +774,21 @@ function importData(e) {
     try {
       const imported = JSON.parse(ev.target.result);
       if (typeof imported !== 'object') throw new Error();
-      if (!confirm(`Nháº­p dá»¯ liá»u tá»« file "${file.name}"?\nâ ï¸ Dá»¯ liá»u hiá»n táº¡i sáº½ bá» THAY THáº¾ hoÃ n toÃ n.`)) return;
+      if (!confirm(`Nhập dữ liệu từ file "${file.name}"?\n⚠️ Dữ liệu hiện tại sẽ bị THAY THẾ hoàn toàn.`)) return;
       data = imported;
       saveData();
       refreshMarkers();
       if (currentProvince) renderSidebarContent();
-      showToast('ð¥ Nháº­p dá»¯ liá»u thÃ nh cÃ´ng!');
-    } catch { showToast('â File khÃ´ng há»£p lá»!'); }
+      showToast('📥 Nhập dữ liệu thành công!');
+    } catch { showToast('❌ File không hợp lệ!'); }
     e.target.value = '';
   };
   reader.readAsText(file);
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  STATS
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function updateStats() {
   const allLocs = Object.values(data).flat();
   const provincesWithData = Object.keys(data).filter(k => data[k] && data[k].length > 0);
@@ -798,9 +798,9 @@ function updateStats() {
   document.getElementById('stat-bikes').textContent = allLocs.filter(l => l.type === 'motorbike').length;
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  TOAST
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 let toastTimer;
 function showToast(msg) {
   const el = document.getElementById('toast');
@@ -810,17 +810,17 @@ function showToast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  UTILS
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 function escHtml(str) {
   if (!str) return '';
   return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 //  INIT
-// ââââââââââââââââââââââââââââââââââââââââ
+// ════════════════════════════════════════
 // Build markers synchronously at top level (outside async) to avoid timing issues
 buildMarkers();
 updateStats();
@@ -834,7 +834,7 @@ async function init() {
     updateStats();
   }
   setTimeout(() => {
-    showToast('ðºï¸ Click vÃ o tá»nh/thÃ nh trÃªn báº£n Äá» Äá» xem Äá»a Äiá»m!');
+    showToast('🗺️ Click vào tỉnh/thành trên bản đồ để xem địa điểm!');
   }, 1000);
 }
 init();
