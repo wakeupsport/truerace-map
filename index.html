@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
   <style>
     :root {
-      --primary: #e53935;
-      --primary-dark: #b71c1c;
+      --primary: #1652D4;
+      --primary-dark: #0F3CAE;
       --secondary: #ff8f00;
       --bg: #f5f6fa;
       --card: #ffffff;
@@ -22,7 +22,7 @@
 
     /* ── HEADER ── */
     #header {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 60%, var(--secondary) 100%);
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
       color: white; padding: 10px 16px;
       display: flex; align-items: center; gap: 12px;
       box-shadow: 0 2px 8px rgba(0,0,0,.25);
@@ -97,6 +97,7 @@
     .type-motorbike { background: #fffaf0; color: #c05621; }
     .type-buucuc { background: #fff5f5; color: #c53030; }
     .type-other { background: #f7fafc; color: #4a5568; }
+    .type-nhahang { background: #f0fff4; color: #276749; }
     .card-name { font-size: 15px; font-weight: 700; flex: 1; line-height: 1.3; }
     .card-actions { display: flex; gap: 4px; }
     .icon-btn {
@@ -153,7 +154,7 @@
       width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
       font-size: 14px; font-family: inherit; color: var(--text); transition: border-color .2s;
     }
-    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(229,57,53,.1); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(22,82,212,.1); }
     textarea { min-height: 80px; resize: vertical; }
     .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
     .btn-save { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; flex: 1; }
@@ -201,7 +202,7 @@
 <!-- HEADER -->
 <div id="header">
   <div>
-    <div class="logo">🏃 TRUERACE</div>
+    <div class="logo"><svg width="130" height="18" viewBox="0 0 160 22" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block"><path d="M9.75988 8.86328H4.87695L12.1505 21.6659H17.0334L9.75988 8.86328Z" fill="white"/><path d="M28.2686 6.73578C28.2686 5.03779 27.6008 3.40934 26.4123 2.20868C25.2237 1.00802 23.6116 0.333496 21.9307 0.333496H0L2.44052 4.60645H21.9307C22.4898 4.60645 23.0259 4.83078 23.4212 5.23011C23.8166 5.62944 24.0386 6.17105 24.0386 6.73578C24.0386 7.30052 23.8166 7.84212 23.4212 8.24145C23.0259 8.64078 22.4898 8.86512 21.9307 8.86512H14.6092L21.8827 21.6668H26.7656L21.9194 13.1381H21.9307C23.6116 13.1378 25.2235 12.4632 26.412 11.2626C27.6005 10.062 28.2683 8.4337 28.2686 6.73578Z" fill="white"/><path d="M44.0775 5.76317V19.6354H40.3908V5.76317H35.8066V2.43679H48.6616V5.76317H44.0775Z" fill="white"/><path d="M55.1129 19.6354H51.4262V2.43679H59.4545C60.2307 2.43679 60.9341 2.5682 61.5647 2.83103C62.1953 3.09385 62.7289 3.47167 63.1655 3.96446C63.6182 4.44083 63.9659 5.01576 64.2084 5.68925C64.451 6.36274 64.5723 7.11015 64.5723 7.93148C64.5723 9.09776 64.3135 10.1162 63.7961 10.9868C63.2948 11.8574 62.5268 12.4899 61.4919 12.8841L64.8148 19.6354H60.7158L57.7567 13.3276H55.1129V19.6354ZM58.9937 10.1737C59.5435 10.1737 59.972 10.0341 60.2792 9.75483C60.6026 9.45915 60.7643 9.03206 60.7643 8.47356V7.3894C60.7643 6.8309 60.6026 6.41202 60.2792 6.13277C59.972 5.83709 59.5435 5.68925 58.9937 5.68925H55.1129V10.1737H58.9937Z" fill="white"/><path d="M71.1733 2.43679V12.9826C71.1733 14.1982 71.4078 15.1099 71.8767 15.7177C72.3456 16.309 73.1298 16.6047 74.2294 16.6047C75.3289 16.6047 76.1132 16.309 76.5821 15.7177C77.051 15.1099 77.2855 14.1982 77.2855 12.9826V2.43679H80.8752V12.5884C80.8752 13.8533 80.7539 14.9538 80.5113 15.8901C80.285 16.81 79.905 17.5739 79.3714 18.1817C78.8378 18.773 78.1506 19.2165 77.3097 19.5122C76.4689 19.7915 75.4421 19.9311 74.2294 19.9311C73.0167 19.9311 71.9899 19.7915 71.149 19.5122C70.3082 19.2165 69.621 18.773 69.0874 18.1817C68.5538 17.5739 68.1657 16.81 67.9232 15.8901C67.6968 14.9538 67.5836 13.8533 67.5836 12.5884V2.43679H71.1733Z" fill="white"/><path d="M84.764 19.6354V2.43679H96.285V5.76317H88.4507V9.28667H95.1693V12.5884H88.4507V16.309H96.285V19.6354H84.764Z" fill="white"/><path d="M103.426 19.6354H99.7394V2.43679H107.768C108.544 2.43679 109.247 2.5682 109.878 2.83103C110.508 3.09385 111.042 3.47167 111.479 3.96446C111.931 4.44083 112.279 5.01576 112.522 5.68925C112.764 6.36274 112.885 7.11015 112.885 7.93148C112.885 9.09776 112.627 10.1162 112.109 10.9868C111.608 11.8574 110.84 12.4899 109.805 12.8841L113.128 19.6354H109.029L106.07 13.3276H103.426V19.6354ZM107.307 10.1737C107.857 10.1737 108.285 10.0341 108.592 9.75483C108.916 9.45915 109.077 9.03206 109.077 8.47356V7.3894C109.077 6.8309 108.916 6.41202 108.592 6.13277C108.285 5.83709 107.857 5.68925 107.307 5.68925H103.426V10.1737H107.307Z" fill="white"/><path d="M126.755 19.6354L125.542 15.5452H119.891L118.678 19.6354H114.943L120.521 2.43679H125.081L130.587 19.6354H126.755ZM122.753 5.83709H122.632L120.764 12.3667H124.645L122.753 5.83709Z" fill="white"/><path d="M139.277 19.9311C138.129 19.9311 137.095 19.7504 136.173 19.389C135.251 19.0112 134.467 18.4609 133.82 17.7381C133.173 16.9989 132.672 16.0873 132.316 15.0031C131.961 13.9025 131.783 12.6213 131.783 11.1593C131.783 9.71376 131.961 8.43249 132.316 7.31548C132.672 6.18205 133.173 5.23752 133.82 4.4819C134.467 3.70985 135.251 3.12671 136.173 2.73247C137.095 2.33823 138.129 2.14111 139.277 2.14111C140.846 2.14111 142.139 2.46965 143.158 3.12671C144.177 3.76734 144.993 4.78579 145.608 6.18205L142.431 7.85756C142.204 7.13479 141.848 6.55986 141.363 6.13277C140.894 5.68925 140.199 5.46749 139.277 5.46749C138.194 5.46749 137.321 5.82888 136.658 6.55165C136.011 7.25799 135.688 8.29286 135.688 9.65627V12.4159C135.688 13.7793 136.011 14.8224 136.658 15.5452C137.321 16.2515 138.194 16.6047 139.277 16.6047C140.183 16.6047 140.903 16.3583 141.436 15.8655C141.986 15.3563 142.39 14.7485 142.649 14.0422L145.656 15.8162C145.026 17.1304 144.193 18.1488 143.158 18.8716C142.139 19.5779 140.846 19.9311 139.277 19.9311Z" fill="white"/><path d="M148.479 19.6354V2.43679H160V5.76317H152.166V9.28667H158.884V12.5884H152.166V16.309H160V19.6354H148.479Z" fill="white"/></svg></div>
     <div class="subtitle">Bản Đồ Vận Hành Sự Kiện</div>
   </div>
   <div id="filter-bar">
@@ -209,6 +210,7 @@
     <button class="filter-btn" data-type="hotel" onclick="setGlobalFilter('hotel')">🏨 Khách sạn/ Nhà nghỉ</button>
     <button class="filter-btn" data-type="motorbike" onclick="setGlobalFilter('motorbike')">🏍 Xe máy</button>
     <button class="filter-btn" data-type="buucuc" onclick="setGlobalFilter('buucuc')">📮 Bưu cục</button>
+    <button class="filter-btn" data-type="nhahang" onclick="setGlobalFilter('nhahang')">🍽️ Nhà hàng</button>
   </div>
   <div id="header-actions">
     <button class="action-btn" id="btn-refresh" onclick="refreshFromSheets()">🔄 Cập nhật</button>
@@ -233,6 +235,7 @@
       <button class="sf-btn" data-sf="hotel" onclick="setSidebarFilter('hotel')">🏨 KS/NQ</button>
       <button class="sf-btn" data-sf="motorbike" onclick="setSidebarFilter('motorbike')">🏍 Xe máy</button>
       <button class="sf-btn" data-sf="buucuc" onclick="setSidebarFilter('buucuc')">📮 Bưu cục</button>
+      <button class="sf-btn" data-sf="nhahang" onclick="setSidebarFilter('nhahang')">🍽️ NH</button>
     </div>
     <div id="sidebar-content"></div>
   </div>
@@ -626,6 +629,7 @@ const TYPE_META = {
   hotel:     { label:'Khách sạn/ Nhà nghỉ', cls:'type-hotel',     icon:'🏨' },
   motorbike: { label:'Xe máy',             cls:'type-motorbike', icon:'🏍' },
   buucuc:    { label:'Bưu cục',            cls:'type-buucuc',    icon:'📮' },
+  nhahang:   { label:'Nhà hàng',            cls:'type-nhahang',   icon:'🍽️' },
   other:     { label:'Khác',               cls:'type-other',     icon:'📍' },
 };
 
